@@ -27,16 +27,16 @@ endif()
 
 set(SOURCE_FILES 
     main.cpp
-    keys.cpp
+#    keys.cpp
     graphics.cpp
-    texture.cpp
-    entity.cpp
-    physics.cpp
+#    texture.cpp
+   # entity.cpp
+#    physics.cpp
     vector.cpp
-    animation.cpp
+#    animation.cpp
     scene.cpp
     game.cpp
-	fonts.cpp
+#    fonts.cpp
 )
 
 set(HEADER_FILES 
@@ -51,6 +51,8 @@ set(HEADER_FILES
     scene.h
 	fonts.h
 )
+
+set (CMAKE_CXX_STANDARD 17)
 
 add_executable(${PROJECT_NAME} 
     ${SOURCE_FILES}

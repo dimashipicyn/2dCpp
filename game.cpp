@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include <chrono>
 #include <SDL.h>
 
 Game::Game()
@@ -9,6 +8,11 @@ Game::Game()
     , name_("default")
     , tick_time_(1000 / 60)
 {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
+        printf("Could not initialize video or audio.\n");
+        return;
+    }
+    graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
 }
 
 Game::Game(const Config &config)
@@ -17,6 +21,11 @@ Game::Game(const Config &config)
     , name_(config.name)
     , tick_time_(1000 / 60)
 {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
+        printf("Could not initialize video or audio.\n");
+        return;
+    }
+    graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
 }
 
 Game::~Game()
@@ -51,11 +60,8 @@ void Game::run()
         
         //game->keys = SDL_GetKeyboardState(NULL);
         
-//        clear_frame(game->graphics);
-//
-//        loop_callback(game);
-//
-//        render_frame(game->graphics);
+        graphics_->clear_frame();
+
         int32_t start = SDL_GetTicks();
         elapsed_ = start - previous_time_;
         previous_time_ = start;
@@ -68,6 +74,26 @@ void Game::run()
         }
         
         //scene_render(game_ctx->active_scene, game_ctx);
+        
+        graphics_->render_frame();
     }
 }
 
+
+
+void Game::set_active_scene(const std::string &name) { 
+    auto found = scenes_.find(name);
+    if (found != scenes_.end()) {
+        active_scene_ = found->second.get();
+    }
+}
+
+
+void Game::add_scene(Scene::ptr scene, const std::string& name) {
+    scenes_.emplace(name, std::move(scene));
+}
+
+
+Graphics &Game::get_graphics() { 
+    return *graphics_;
+}

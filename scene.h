@@ -17,7 +17,7 @@ class Game;
 class Scene
 {
 public:
-    using ptr = std::shared_ptr<Scene>;
+    using ptr = std::unique_ptr<Scene>;
     
     Scene();
     virtual ~Scene();

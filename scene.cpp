@@ -2,11 +2,9 @@
 #include "entity.h"
 
 Scene::Scene() {
-    <#code#>;
 }
 
 Scene::~Scene() {
-    <#code#>;
 }
 
 void Scene::preload(Game& game)
@@ -48,7 +46,7 @@ void Scene::render(Game& game)
 
 void Scene::attach_entity(Entity::ptr entity)
 {
-    entities_.push_back({true, entity});
+    entities_.emplace_back(true, entity);
 }
 
 void Scene::detach_entity(Entity::ptr entity)
