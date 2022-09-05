@@ -2,8 +2,8 @@
 # define GAME_H
 
 #include "graphics.h"
-#include "keys.h"
 #include "scene.h"
+#include "input.h"
 
 #include <cstdint>
 #include <string>
@@ -24,6 +24,7 @@ public:
     ~Game();
     
     Graphics& get_graphics();
+	Input& get_input();
     
     void add_scene(Scene::ptr scene, const std::string& name);
     void set_active_scene(const std::string& name);
@@ -31,12 +32,7 @@ public:
     void run();
     
 private:
-
-//    t_graphics      *graphics;
-//    t_scene         *scenes[TOTAL_SCENES];
-//    t_scene         *active_scene;
-//    const uint8_t    *keys;
-//    t_mouse            mouse;
+	
     int32_t         width_;
     int32_t         heigth_;
     std::string     name_;
@@ -48,7 +44,8 @@ private:
     
     std::map<std::string, Scene::ptr> scenes_;
     Scene* active_scene_;
-    
+
+	Input input_;
     std::unique_ptr<Graphics> graphics_;
 };
 

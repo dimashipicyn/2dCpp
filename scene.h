@@ -31,11 +31,7 @@ public:
     void detach_entity(Entity::ptr ptr);
     
 private:
-    struct AttachedEntity
-    {
-        bool is_attached;
-        Entity::ptr ptr;
-    };
+	using AttachedEntity = std::pair<bool, Entity::ptr>;
     std::vector<AttachedEntity> entities_;
     std::vector<AttachedEntity> added_entities_;
 };

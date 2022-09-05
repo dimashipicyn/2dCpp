@@ -5,63 +5,85 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
-void Graphics::WindowDeleter::operator()(SDL_Window* window)
-{
-    if (window) {
-        SDL_DestroyWindow(window);
-    }
-}
-
-void Graphics::RendererDeleter::operator()(SDL_Renderer* renderer)
-{
-    if (renderer) {
-        SDL_DestroyRenderer(renderer);
-    }
-}
-
 Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
-    : window_(nullptr, WindowDeleter())
-    , renderer_(nullptr, RendererDeleter())
-    , w_(width)
+    : w_(width)
     , h_(height)
+	, ok_(true)
 {
-    //Initialize PNG loading
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		ok_ = false;
+		printf( "SDL video could not initialize! Error: %s\n", SDL_GetError());
+	}
+
     int imgFlags = IMG_INIT_PNG;
-    if(!( IMG_Init( imgFlags ) & imgFlags ))
+    if(!(IMG_Init( imgFlags ) & imgFlags))
     {
-        printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+		ok_ = false;
+        printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
     }
-    
-    //Initialize SDL_ttf
+
     if(TTF_Init() == -1)
     {
+		ok_ = false;
         printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
     }
     
-    window_ = std::unique_ptr<SDL_Window, void(SDL_Window*)>(SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN), SDL_DestroyWindow);
+    window_ = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
     
-    renderer_ = std::unique_ptr<SDL_Renderer, void(SDL_Renderer*)>(SDL_CreateRenderer(window_.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC), SDL_DestroyRenderer);
+    renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	if (!window_ || !renderer_) {
+		ok_ = false;
+		printf("SDL could not initialize! %s\n", SDL_GetError());
+	}
+
+	SDL_GetWindowSize(window_, &w_, &h_);
 }
 
 Graphics::~Graphics()
 {
-    
+	if (renderer_) {
+		SDL_DestroyRenderer(renderer_);
+		renderer_ = nullptr;
+	}
+	if (window_) {
+		SDL_DestroyWindow(window_);
+		window_ = nullptr;
+	}
+
+	TTF_Quit();
+	IMG_Quit();
+	SDL_Quit();
 }
 
 void Graphics::render_frame()
 {
-	SDL_RenderPresent(renderer_.get());
+	SDL_RenderPresent(renderer_);
 }
 
 void Graphics::clear_frame()
 {
-	SDL_RenderClear(renderer_.get());
+	SDL_RenderClear(renderer_);
 }
 
-//void Graphics::draw_sprite(const Sprite& sprite)
-//{
-//    SDL_Rect src = {sprite.src.pos.x, sprite.src.pos.y, sprite.src.size.x, sprite.src.size.y};
-//    SDL_Rect dest = {sprite.dest.pos.x, sprite.dest.pos.y, sprite.dest.size.x, sprite.dest.size.y};
-//    SDL_RenderCopy(graphics->renderer, sprite.texture.texture, &src, &dest);
-//}
+bool Graphics::is_ok() { 
+	return ok_;
+}
 
+
+void Graphics::draw(const Drawable* object)
+{
+	object->draw(*this);
+}
+
+
+
+Drawable::~Drawable() {
+}
+
+
+void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect &dest) {
+	SDL_Rect s{src.x, src.y, src.w, src.h};
+	SDL_Rect d{dest.x, dest.y, dest.w, dest.h};
+	SDL_RenderCopy(renderer_, texture.texture_, &s, &d);
+}

@@ -8,10 +8,6 @@ Game::Game()
     , name_("default")
     , tick_time_(1000 / 60)
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
-        printf("Could not initialize video or audio.\n");
-        return;
-    }
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
 }
 
@@ -21,10 +17,6 @@ Game::Game(const Config &config)
     , name_(config.name)
     , tick_time_(1000 / 60)
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
-        printf("Could not initialize video or audio.\n");
-        return;
-    }
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
 }
 
@@ -35,32 +27,20 @@ Game::~Game()
 
 void Game::run()
 {
+	if (graphics_->is_ok()) {
+		return;
+	}
+
+	if (!active_scene_) {
+		printf("Dont have scenes!");
+	}
+
     previous_time_ = SDL_GetTicks();
     
-    SDL_Event event;
     bool quit = 0;
     while (!quit)
     {
-        SDL_PollEvent(&event);
-        
-//        game->mouse.is_press_l = 0;
-//        game->mouse.is_press_r = 0;
-        switch (event.type)
-        {
-            case SDL_QUIT:
-                quit = 1;
-                break;
-//            case SDL_MOUSEMOTION:
-//                SDL_GetMouseState(&game->mouse.x, &game->mouse.y);
-//                break;
-//            case SDL_MOUSEBUTTONUP:
-//                game->mouse.is_press_l = 1;
-//                break;
-        }
-        
-        //game->keys = SDL_GetKeyboardState(NULL);
-        
-        graphics_->clear_frame();
+		input_.handle();
 
         int32_t start = SDL_GetTicks();
         elapsed_ = start - previous_time_;
@@ -68,13 +48,12 @@ void Game::run()
         lag_ += elapsed_;
         
         while (lag_ >= tick_time_) {
-            //step_physic_world();
-            //scene_update(game_ctx->active_scene, game_ctx);
+			active_scene_->update(*this);
             lag_ -= tick_time_;
         }
-        
-        //scene_render(game_ctx->active_scene, game_ctx);
-        
+
+		graphics_->clear_frame();
+		active_scene_->render(*this);
         graphics_->render_frame();
     }
 }
@@ -91,9 +70,15 @@ void Game::set_active_scene(const std::string &name) {
 
 void Game::add_scene(Scene::ptr scene, const std::string& name) {
     scenes_.emplace(name, std::move(scene));
+	active_scene_ = scenes_.at(name).get();
 }
 
 
 Graphics &Game::get_graphics() { 
     return *graphics_;
+}
+
+
+Input &Game::get_input() { 
+	return input_;
 }

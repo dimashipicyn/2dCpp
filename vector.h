@@ -21,9 +21,9 @@ struct Vec2
     val rotate(float angle);
 };
 
-using iVec2 = Vec2<int>;
-using fVec2 = Vec2<float>;
-using dVec2 = Vec2<double>;
+using Vec2i = Vec2<int>;
+using Vec2f = Vec2<float>;
+using Vec2d = Vec2<double>;
 
 #endif
 

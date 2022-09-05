@@ -27,10 +27,10 @@ endif()
 
 set(SOURCE_FILES 
     main.cpp
-#    keys.cpp
+    input.cpp
     graphics.cpp
-#    texture.cpp
-   # entity.cpp
+    texture.cpp
+    entity.cpp
 #    physics.cpp
     vector.cpp
 #    animation.cpp
@@ -40,7 +40,7 @@ set(SOURCE_FILES
 )
 
 set(HEADER_FILES 
-    keys.h
+    input.h
     graphics.h
     texture.h
     entity.h
