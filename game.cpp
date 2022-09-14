@@ -27,7 +27,7 @@ Game::~Game()
 
 void Game::run()
 {
-	if (graphics_->is_ok()) {
+	if (!graphics_->is_ok()) {
 		return;
 	}
 
@@ -37,10 +37,12 @@ void Game::run()
 
     previous_time_ = SDL_GetTicks();
     
-    bool quit = 0;
+    bool quit = false;
     while (!quit)
     {
 		input_.handle();
+        
+        quit = input_.get_button(Input::Quit) != 0;
 
         int32_t start = SDL_GetTicks();
         elapsed_ = start - previous_time_;
@@ -48,7 +50,7 @@ void Game::run()
         lag_ += elapsed_;
         
         while (lag_ >= tick_time_) {
-			active_scene_->update(*this);
+			active_scene_->update_internal(*this);
             lag_ -= tick_time_;
         }
 
@@ -65,12 +67,12 @@ void Game::set_active_scene(const std::string &name) {
     if (found != scenes_.end()) {
         active_scene_ = found->second.get();
     }
+    active_scene_->start(*this);
 }
 
 
 void Game::add_scene(Scene::ptr scene, const std::string& name) {
     scenes_.emplace(name, std::move(scene));
-	active_scene_ = scenes_.at(name).get();
 }
 
 

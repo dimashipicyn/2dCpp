@@ -22,18 +22,32 @@ Texture::~Texture()
 	texture_ = nullptr;
 }
 
-void Texture::load(Graphics& graphics, const std::string &file_name)
+bool Texture::load(Graphics& graphics, const std::string &file_name)
 {
 	SDL_Surface* image = IMG_Load(file_name.c_str());
-	if (image == NULL) {
+	if (image == nullptr) {
 		printf("Could not load texture: %s\n", file_name.c_str());
-		return ;
+		return false;
 	}
 	SDL_SetColorKey(image, SDL_TRUE, SDL_MapRGB(image->format, 0, 0, 0x01));
 
 	texture_ = SDL_CreateTextureFromSurface(graphics.renderer_, image);
+    if (texture_ == nullptr) {
+        printf("Could not create texture: %s\n", file_name.c_str());
+        return false;
+    }
+    
 	w_ = image->w;
 	h_ = image->h;
 
 	SDL_FreeSurface(image);
+    return true;
+}
+
+int32_t Texture::get_w() const {
+    return w_;
+}
+
+int32_t Texture::get_h() const {
+    return h_;
 }

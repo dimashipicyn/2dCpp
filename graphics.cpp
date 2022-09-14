@@ -6,7 +6,9 @@
 #include <SDL_ttf.h>
 
 Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
-    : w_(width)
+    : window_(nullptr)
+    , renderer_(nullptr)
+    , w_(width)
     , h_(height)
 	, ok_(true)
 {
@@ -86,4 +88,14 @@ void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect 
 	SDL_Rect s{src.x, src.y, src.w, src.h};
 	SDL_Rect d{dest.x, dest.y, dest.w, dest.h};
 	SDL_RenderCopy(renderer_, texture.texture_, &s, &d);
+}
+
+
+int32_t Graphics::get_height() const {
+    return h_;
+}
+
+
+int32_t Graphics::get_width() const { 
+    return w_;
 }

@@ -42,6 +42,10 @@ public:
     void clear_frame();
     
 	void draw_texture(const Texture& texture, const Rect& src, const Rect& dest);
+    
+    int32_t get_width() const;
+    int32_t get_height() const;
+    
 private:
 	friend class Texture;
     

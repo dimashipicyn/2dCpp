@@ -31,12 +31,14 @@ set(SOURCE_FILES
     graphics.cpp
     texture.cpp
     entity.cpp
-#    physics.cpp
+    physics.cpp
     vector.cpp
 #    animation.cpp
     scene.cpp
     game.cpp
 #    fonts.cpp
+    Sprite.cpp
+    simple_scene.cpp
 )
 
 set(HEADER_FILES 

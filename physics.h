@@ -1,60 +1,51 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-#include "utils.h"
 #include "vector.h"
 
-enum {
-    PHYSICS_LAYER_EMPTY = 0,
-    PHYSICS_LAYER_1 = 1,
-    PHYSICS_LAYER_2 = 2,
-    PHYSICS_LAYER_3 = 4,
-    PHYSICS_LAYER_4 = 8,
-    PHYSICS_LAYER_5 = 16
+#include <vector>
+
+struct AABB
+{
+    Vec2f pos;
+    Vec2f size;
+    
+    bool has_intersection(const AABB& aabb) const;
 };
 
-typedef struct s_body_rect
+struct Physic_body
 {
-    t_vec2 pos;
-    t_vec2 half_size;
-} t_body_rect;
+    void*                       owner;
+    std::vector<Physic_body*>   contacted_bodyes;
+    AABB                        aabb;
+	int32_t                     layer;
+    Vec2f                       direction;
+    float                       velocity;
+    bool                        is_active;
+};
 
-typedef struct s_physic_body t_physic_body;
-typedef struct s_physic_body
+struct Physic_body_def
 {
-    void*           owner;
-    t_physic_body*  contacted_body;
-	t_body_rect     rect;
-	int32_t         layer;
-    t_vec2          dir;
-    float           velocity;
-    int8_t          stop_on_contact;
-    int8_t          contact;
-} t_physic_body;
-
-typedef struct s_physic_body_def
-{
-    void*   user_data;
-    t_vec2  pos;
-    t_vec2  size;
-    t_vec2  dir;
+    void*   owner;
+    AABB    aabb;
     int32_t layer;
+    Vec2f   direction;
     float   velocity;
-    char    is_dynamic;
-} t_physic_body_def;
+    bool    is_static;
+    bool    is_active;
+};
 
-typedef struct s_physic_world
+class Physic
 {
-    t_list* static_bodies;
-    t_list* dynamic_bodies;
-} t_physic_world;
-
-t_physic_world*     new_physic_world();
-void                free_physic_world(t_physic_world* w);
-void                step_physic_world();
-
-t_physic_body*      create_physic_body(t_physic_body_def def);
-void                free_physic_body(t_physic_body* b);
-void				intersect_physic_body(t_physic_body* body_1);
+public:
+    void step();
+    bool has_intersection(const AABB& aabb);
+    
+    Physic_body* create_body(const Physic_body_def& def);
+    
+private:
+    std::vector<Physic_body> static_body_;
+    std::vector<Physic_body> dynamic_body_;
+};
 
 #endif

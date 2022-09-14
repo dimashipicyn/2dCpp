@@ -82,7 +82,7 @@ float Input::get_horizontal_axis() {
 
 
 float Input::get_button(const Input::Button &button) {
-	if (button < Button::Fire1 || button >= Button::Total) {
+	if (button < Button::Quit || button >= Button::Total) {
 		return 0;
 	}
 	return buttons_[button];

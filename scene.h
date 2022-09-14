@@ -20,15 +20,16 @@ public:
     using ptr = std::unique_ptr<Scene>;
     
     Scene();
-    virtual ~Scene();
+    virtual ~Scene() noexcept;
     
-    virtual void preload(Game& game);
-    virtual void create(Game& game);
+    virtual void start(Game& game);
     virtual void update(Game& game);
     virtual void render(Game& game);
     
     void attach_entity(Entity::ptr ptr);
     void detach_entity(Entity::ptr ptr);
+    
+    void update_internal(Game& game);
     
 private:
 	using AttachedEntity = std::pair<bool, Entity::ptr>;

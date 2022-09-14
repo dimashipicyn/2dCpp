@@ -11,6 +11,20 @@ struct Vec2
     T x;
     T y;
     
+    Vec2()
+        : x()
+        , y()
+    {
+        
+    }
+    
+    Vec2(T x, T y)
+        : x(x)
+        , y(y)
+    {
+        
+    }
+    
     double length();
     val add(ref vec2);
     val sub(ref vec2);

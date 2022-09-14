@@ -14,7 +14,10 @@ public:
 	Texture();
 	~Texture();
 
-	void load(Graphics& graphics, const std::string& file_name);
+	bool load(Graphics& graphics, const std::string& file_name);
+    
+    int32_t get_w() const;
+    int32_t get_h() const;
 
 private:
 	friend class Graphics;
