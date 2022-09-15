@@ -1,4 +1,5 @@
 #include "game.h"
+#include "log.h"
 
 #include <SDL.h>
 
@@ -32,7 +33,7 @@ void Game::run()
 	}
 
 	if (!active_scene_) {
-		printf("Dont have scenes!");
+		LOG_ERROR("Dont have scenes!");
 	}
 
     previous_time_ = SDL_GetTicks();

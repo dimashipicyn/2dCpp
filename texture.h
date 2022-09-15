@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <memory>
 
 typedef struct SDL_Texture SDL_Texture;
 
@@ -21,8 +22,10 @@ public:
 
 private:
 	friend class Graphics;
+    
+    using Texture_ptr = std::shared_ptr<SDL_Texture>;
 
-	SDL_Texture* texture_;
+	Texture_ptr texture_;
 	int32_t w_;
 	int32_t h_;
 };

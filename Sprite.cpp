@@ -9,45 +9,34 @@
 
 #include "game.h"
 #include "graphics.h"
+#include "log.h"
 
+Sprite::Sprite()
+: texture_()
+, src_()
+, dest_()
+, scale_()
+{
+}
 
-bool Sprite::load(Game &game, const std::string &file_name) {
-    if (!texture_.load(game.get_graphics(), file_name)) {
+Sprite::Sprite(const Texture& texture, const Rect& src, const Rect& dest)
+    : texture_(texture)
+    , src_(src)
+    , dest_(dest)
+    , scale_(1)
+{
+}
+
+Sprite::~Sprite() noexcept {
+}
+
+bool Sprite::load(Graphics& graphics, const std::string &file_name) {
+    if (!texture_.load(graphics, file_name)) {
         return false;
     }
     src_ = {0,0,texture_.get_w(), texture_.get_h()};
     dest_ = src_;
     return true;
-}
-
-
-void Sprite::render(Game &game) {
-    Vec2f pos = Entity::get_position();
-    dest_.x = pos.x;
-    dest_.y = pos.y;
-    
-    game.get_graphics().draw_texture(texture_, src_, dest_);
-}
-
-
-void Sprite::update(Game &game) {
-}
-
-
-void Sprite::input(Game &game) {
-}
-
-
-Sprite::~Sprite() noexcept {
-}
-
-
-Sprite::Sprite()
-    : Entity()
-    , texture_()
-    , src_()
-    , dest_()
-{
 }
 
 void Sprite::set_scale(float pt) {
@@ -69,14 +58,19 @@ float Sprite::get_scale() const {
     return scale_;
 }
 
+void Sprite::draw(Graphics &graphics) {
+    graphics.draw_texture(texture_, src_, dest_);
+}
 
-void Sprite::set_height(int h) {
+void Sprite::set_position(int x, int y) {
+    dest_.x = x;
+    dest_.y = y;
+}
+
+void Sprite::set_size(int w, int h) {
+    dest_.w = w;
     dest_.h = h;
 }
 
-
-void Sprite::set_width(int w) {
-    dest_.w = w;
-}
 
 

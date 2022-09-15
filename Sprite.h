@@ -12,25 +12,27 @@
 #include "texture.h"
 #include "graphics.h"
 
-class Sprite : public Entity
+class Sprite
 {
 public:
     Sprite();
+    Sprite(const Texture& texture, const Rect& src, const Rect& dest);
     ~Sprite() noexcept;
     
-    void input(Game& game);
-    void update(Game& game);
-    void render(Game& game);
-    
-    bool load(Game& game, const std::string& file_name);
+    bool load(Graphics& graphics, const std::string& file_name);
     
     void set_scale(float pt);
-    void set_width(int pt);
-    void set_height(int pt);
+    void set_position(int x, int y);
+    void set_size(int w, int h);
     
     float get_scale() const;
+    
+    int get_x() const;
+    int get_y() const;
     int get_width() const;
     int get_height() const;
+    
+    void draw(Graphics& graphics);
     
 private:
     Texture texture_;

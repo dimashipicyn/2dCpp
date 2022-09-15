@@ -33,12 +33,11 @@ set(SOURCE_FILES
     entity.cpp
     physics.cpp
     vector.cpp
-#    animation.cpp
     scene.cpp
     game.cpp
-#    fonts.cpp
     Sprite.cpp
     simple_scene.cpp
+    Sprite_atlas.cpp
 )
 
 set(HEADER_FILES 
@@ -52,6 +51,8 @@ set(HEADER_FILES
     game.h
     scene.h
 	fonts.h
+    Sprite.h
+    Sprite_atlas.hpp
 )
 
 set (CMAKE_CXX_STANDARD 17)
@@ -79,6 +80,8 @@ find_package(sdl2-image CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
 
+find_package(jsoncpp CONFIG REQUIRED)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     # utils
     # "-framework Appkit"
@@ -89,6 +92,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	SDL2::SDL2_image
 	SDL2_ttf::SDL2_ttf-static
 	SDL2_mixer::SDL2_mixer-static
+    jsoncpp_object jsoncpp_static JsonCpp::JsonCpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

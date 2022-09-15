@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "log.h"
 
 #include <math.h>
 #include <SDL.h>
@@ -14,20 +15,21 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		ok_ = false;
-		printf( "SDL video could not initialize! Error: %s\n", SDL_GetError());
+        LOG_ERROR(std::string{"SDL video could not initialize! Error: "} + SDL_GetError());
+        return;
 	}
 
     int imgFlags = IMG_INIT_PNG;
     if(!(IMG_Init( imgFlags ) & imgFlags))
     {
 		ok_ = false;
-        printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+        LOG_ERROR(std::string{"SDL_image could not initialize! SDL_image Error: "} + IMG_GetError());
     }
 
     if(TTF_Init() == -1)
     {
 		ok_ = false;
-        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+        LOG_ERROR(std::string{"SDL_ttf could not initialize! SDL_ttf Error: "} + TTF_GetError());
     }
     
     window_ = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
@@ -36,7 +38,7 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
 
 	if (!window_ || !renderer_) {
 		ok_ = false;
-		printf("SDL could not initialize! %s\n", SDL_GetError());
+        LOG_ERROR(std::string{"SDL could not initialize! Error: "} + SDL_GetError());
 	}
 
 	SDL_GetWindowSize(window_, &w_, &h_);
@@ -87,7 +89,7 @@ Drawable::~Drawable() {
 void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect &dest) {
 	SDL_Rect s{src.x, src.y, src.w, src.h};
 	SDL_Rect d{dest.x, dest.y, dest.w, dest.h};
-	SDL_RenderCopy(renderer_, texture.texture_, &s, &d);
+	SDL_RenderCopy(renderer_, texture.texture_.get(), &s, &d);
 }
 
 

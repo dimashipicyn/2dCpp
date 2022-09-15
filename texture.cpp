@@ -1,5 +1,6 @@
 #include "texture.h"
 #include "graphics.h"
+#include "log.h"
 
 #include <stddef.h>
 #include <assert.h>
@@ -18,29 +19,26 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-	SDL_DestroyTexture(texture_);
-	texture_ = nullptr;
 }
 
 bool Texture::load(Graphics& graphics, const std::string &file_name)
 {
-	SDL_Surface* image = IMG_Load(file_name.c_str());
+    std::unique_ptr<SDL_Surface, void(*)(SDL_Surface*)> image{IMG_Load(file_name.c_str()), SDL_FreeSurface};
 	if (image == nullptr) {
-		printf("Could not load texture: %s\n", file_name.c_str());
+        LOG_ERROR("Could not load texture: " + file_name + ". Error: " + SDL_GetError());
 		return false;
 	}
-	SDL_SetColorKey(image, SDL_TRUE, SDL_MapRGB(image->format, 0, 0, 0x01));
+	SDL_SetColorKey(image.get(), SDL_TRUE, SDL_MapRGB(image->format, 0, 0, 0x01));
 
-	texture_ = SDL_CreateTextureFromSurface(graphics.renderer_, image);
+    texture_.reset(SDL_CreateTextureFromSurface(graphics.renderer_, image.get()), SDL_DestroyTexture);
     if (texture_ == nullptr) {
-        printf("Could not create texture: %s\n", file_name.c_str());
+        LOG_ERROR("Could not create texture: " + file_name + ". Error: " + SDL_GetError());
         return false;
     }
     
 	w_ = image->w;
 	h_ = image->h;
 
-	SDL_FreeSurface(image);
     return true;
 }
 
