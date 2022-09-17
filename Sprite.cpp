@@ -15,7 +15,7 @@ Sprite::Sprite()
 : texture_()
 , src_()
 , dest_()
-, scale_()
+, scale_(1)
 {
 }
 
@@ -71,6 +71,3 @@ void Sprite::set_size(int w, int h) {
     dest_.w = w;
     dest_.h = h;
 }
-
-
-

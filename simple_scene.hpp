@@ -12,6 +12,7 @@
 
 #include "scene.h"
 #include "Sprite.h"
+#include "AnimationSprite.hpp"
 
 class Simple_scene : public Scene
 {
@@ -19,10 +20,11 @@ public:
     virtual ~Simple_scene() noexcept;
     virtual void start(Game& game) override;
     virtual void update(Game& game) override;
+	virtual void render(Game& game) override;
     
 private:
-    std::shared_ptr<Sprite> sprite_;
-    bool left;
+	Sprite sprite_;
+	AnimationSprite anim_sprite_;
 };
 
 #endif /* simple_scene_hpp */

@@ -23,15 +23,20 @@ public:
     
     void play();
     void stop();
+
+	bool is_end() const;
     
     void set_duration_in_ms(int ms);
+	void set_repeat(bool val);
     
-    void draw(Graphics& graphics);
+    void draw(Graphics& graphics, int elapsed_in_ms);
 private:
     std::vector<Rect> animation_list_;
     int frame_index_;
     int duration_in_ms_;
+	int elapsed_in_ms_;
     bool playing_;
+	bool repeat_;
 };
 
 #endif /* AnimationSprite_hpp */

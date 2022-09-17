@@ -25,6 +25,9 @@ public:
     
     Graphics& get_graphics();
 	Input& get_input();
+
+	int32_t get_tick() const;
+	int32_t get_elapsed() const;
     
     void add_scene(Scene::ptr scene, const std::string& name);
     void set_active_scene(const std::string& name);

@@ -39,6 +39,7 @@ set(SOURCE_FILES
     AnimationSprite.cpp
     simple_scene.cpp
     Sprite_atlas.cpp
+    log.cpp
 )
 
 set(HEADER_FILES 
@@ -48,12 +49,13 @@ set(HEADER_FILES
     entity.h
     physics.h
     vector.h
-    animation.h
+    AnimationSprite.hpp
     game.h
     scene.h
 	fonts.h
     Sprite.h
     Sprite_atlas.hpp
+    log.h
 )
 
 set (CMAKE_CXX_STANDARD 17)

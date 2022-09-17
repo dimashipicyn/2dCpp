@@ -61,8 +61,6 @@ void Game::run()
     }
 }
 
-
-
 void Game::set_active_scene(const std::string &name) { 
     auto found = scenes_.find(name);
     if (found != scenes_.end()) {
@@ -76,12 +74,18 @@ void Game::add_scene(Scene::ptr scene, const std::string& name) {
     scenes_.emplace(name, std::move(scene));
 }
 
-
 Graphics &Game::get_graphics() { 
     return *graphics_;
 }
 
-
 Input &Game::get_input() { 
 	return input_;
+}
+
+int32_t Game::get_elapsed() const { 
+	return elapsed_;
+}
+
+int32_t Game::get_tick() const { 
+	return tick_time_;
 }

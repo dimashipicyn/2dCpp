@@ -9,52 +9,32 @@
 #include "game.h"
 #include "graphics.h"
 #include "Sprite_atlas.hpp"
+#include "log.h"
 
 void Simple_scene::update(Game &game) {
-//    sprite_->translate(2);
-//
-//    Vec2f pos = sprite_->get_position();
-//
-//    int x_max = game.get_graphics().get_width();
-//    int y_max = game.get_graphics().get_height();
-//
-//    int sprite_w = sprite_->get_width();
-//    int sprite_h = sprite_->get_height();
-//
-//    if (pos.x > x_max - sprite_w) {
-//        sprite_->translate(-2);
-//        sprite_->rotate(-90);
-//    }
-//    if (pos.y > y_max - sprite_h) {
-//        sprite_->translate(-2);
-//        sprite_->rotate(-90);
-//    }
-//    if (pos.x < 0) {
-//        sprite_->translate(-2);
-//        sprite_->rotate(-90);
-//    }
-//    if (pos.y < 0) {
-//        sprite_->translate(-2);
-//        sprite_->rotate(-90);
-//    }
+
 }
 
 
 void Simple_scene::start(Game &game) {
-//    sprite_ = std::make_shared<Sprite>();
-//    sprite_->load(game, "assets/orel_spritesheet.png");
-//    sprite_->set_scale(5);
-//    sprite_->set_direction(Vec2f(1,0));
-//    left = true;
-//    attach_entity(sprite_);
-//    
-//    Sprite_atlas atlas;
-//    atlas.load(game, "assets/test.json");
-//    auto s = atlas.get("wall_3");
-//    s->set_position(Vec2f(100,100));
-//    attach_entity(s);
+	SET_LOG_LEVEL(LOG_LEVEL_INFO);
+	sprite_.load(game.get_graphics(), "assets/respawn_spritesheet.png");
+	anim_sprite_.load(game.get_graphics(), "assets/respawn_spritesheet.png", 4);
+
+	sprite_.set_position(50, 50);
+	anim_sprite_.set_position(100, 100);
+	anim_sprite_.set_duration_in_ms(500);
+	anim_sprite_.set_repeat(true);
+	anim_sprite_.set_scale(2);
+	anim_sprite_.play();
 }
 
 
 Simple_scene::~Simple_scene() noexcept { 
 }
+
+void Simple_scene::render(Game &game) { 
+	sprite_.draw(game.get_graphics());
+	anim_sprite_.draw(game.get_graphics(), game.get_tick());
+}
+

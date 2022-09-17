@@ -10,7 +10,7 @@
 
 #include <string>
 
-namespace log {
+namespace logging {
     void log(int level, const std::string& s);
     void set_log_level(int level);
 }
@@ -23,11 +23,11 @@ namespace log {
 
 #define LOG(level, msg) log::log(level, msg)
 
-#define LOG_INFO(msg) log::log(LOG_LEVEL_INFO, msg)
-#define LOG_DEBUG(msg) log::log(LOG_LEVEL_DEBUG, msg)
-#define LOG_WARNING(msg) log::log(LOG_LEVEL_WARNING, msg)
-#define LOG_ERROR(msg) log::log(LOG_LEVEL_ERROR, msg)
+#define LOG_INFO(msg) logging::log(LOG_LEVEL_INFO, msg)
+#define LOG_DEBUG(msg) logging::log(LOG_LEVEL_DEBUG, msg)
+#define LOG_WARNING(msg) logging::log(LOG_LEVEL_WARNING, msg)
+#define LOG_ERROR(msg) logging::log(LOG_LEVEL_ERROR, msg)
 
-#define SET_LOG_LEVEL(level) set_log_level(level)
+#define SET_LOG_LEVEL(level) logging::set_log_level(level)
 
 #endif /* Header_h */
