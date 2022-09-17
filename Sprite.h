@@ -34,7 +34,7 @@ public:
     
     void draw(Graphics& graphics);
     
-private:
+protected:
     Texture texture_;
     Rect    src_;
     Rect    dest_;

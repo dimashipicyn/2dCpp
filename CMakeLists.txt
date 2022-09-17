@@ -36,6 +36,7 @@ set(SOURCE_FILES
     scene.cpp
     game.cpp
     Sprite.cpp
+    AnimationSprite.cpp
     simple_scene.cpp
     Sprite_atlas.cpp
 )
