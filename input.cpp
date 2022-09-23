@@ -21,53 +21,66 @@ void Input::handle() {
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
-				switch (event.type)
-				{
-					case SDL_QUIT:
-					case SDL_SCANCODE_ESCAPE:
-						buttons_[Quit] += 1;
-						break;
-					case SDL_SCANCODE_W:
-					case SDL_SCANCODE_UP:
-						vertical_axis_ += 1;
-						break;
-					case SDL_SCANCODE_S:
-					case SDL_SCANCODE_DOWN:
-						vertical_axis_ -= 1;
-						break;
-					case SDL_SCANCODE_A:
-					case SDL_SCANCODE_LEFT:
-						horizontal_axis_ -= 1;
-						break;
-					case SDL_SCANCODE_D:
-					case SDL_SCANCODE_RIGHT:
-						horizontal_axis_ += 1;
-						break;
-					case SDL_SCANCODE_LCTRL:
-					case SDL_SCANCODE_RCTRL:
-						buttons_[Fire1] += 1;
-						break;
-					case SDL_SCANCODE_LALT:
-					case SDL_SCANCODE_RALT:
-						buttons_[Fire2] += 1;
-						break;
-		            case SDL_MOUSEMOTION:
-						mouse_position_.x = event.motion.x;
-						mouse_position_.y = event.motion.y;
-		                break;
-		            case SDL_MOUSEBUTTONUP:
-						if (event.button.button == SDL_BUTTON_LEFT) {
-							buttons_[MouseLeft] += 1;
-						}
-						if (event.button.button == SDL_BUTTON_RIGHT) {
-							buttons_[MouseRight] += 1;
-						}
-						if (event.button.button == SDL_BUTTON_MIDDLE) {
-							buttons_[MouseMiddle] += 1;
-						}
-		                break;
+		switch (event.type)
+		{
+			case SDL_QUIT:
+				buttons_[Quit] += 1;
+				break;
+			case SDL_MOUSEMOTION:
+				mouse_position_.x = event.motion.x;
+				mouse_position_.y = event.motion.y;
+				break;
+			case SDL_MOUSEBUTTONUP:
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					buttons_[MouseLeft] += 1;
 				}
-
+				if (event.button.button == SDL_BUTTON_RIGHT) {
+					buttons_[MouseRight] += 1;
+				}
+				if (event.button.button == SDL_BUTTON_MIDDLE) {
+					buttons_[MouseMiddle] += 1;
+				}
+				break;
+//			case SDL_KEYDOWN: {
+//				switch (event.key.keysym.sym) {
+//
+//					case SDLK_ESCAPE:
+//						buttons_[Quit] += 1;
+//						break;
+//					case SDLK_w:
+//					case SDLK_UP:
+//						vertical_axis_ += 1;
+//						break;
+//					case SDLK_s:
+//					case SDLK_DOWN:
+//						vertical_axis_ -= 1;
+//						break;
+//					case SDLK_a:
+//					case SDLK_LEFT:
+//						horizontal_axis_ -= 1;
+//						break;
+//					case SDLK_d:
+//					case SDLK_RIGHT:
+//						horizontal_axis_ += 1;
+//						break;
+//					case SDLK_LCTRL:
+//					case SDLK_RCTRL:
+//						buttons_[Fire1] += 1;
+//						break;
+//					case SDLK_LALT:
+//					case SDLK_RALT:
+//						buttons_[Fire2] += 1;
+//						break;
+//				}
+//			}
+		}
+	}
+	auto keyStates = SDL_GetKeyboardState(NULL);
+	if (keyStates[SDL_SCANCODE_D]) {
+		horizontal_axis_ += 1;
+	}
+	if (keyStates[SDL_SCANCODE_A]) {
+		horizontal_axis_ -= 1;
 	}
 }
 

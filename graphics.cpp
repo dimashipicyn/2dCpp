@@ -42,6 +42,7 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
 	}
 
 	SDL_GetWindowSize(window_, &w_, &h_);
+	SDL_SetRenderDrawColor(renderer_, 0x0, 0x0, 0x0, 0x0);
 }
 
 Graphics::~Graphics()
@@ -100,4 +101,12 @@ int32_t Graphics::get_height() const {
 
 int32_t Graphics::get_width() const { 
     return w_;
+}
+
+
+void Graphics::draw_square(const Rect &dest, const Color &color) { 
+	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
+	SDL_Rect dst{dest.x, dest.y, dest.w, dest.h};
+	SDL_RenderFillRect(renderer_, &dst);
+	SDL_SetRenderDrawColor(renderer_, 0x0, 0x0, 0x0, 0x0);
 }

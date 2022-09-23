@@ -34,6 +34,7 @@ Vec2f Entity::get_direction() const {
 
 void Entity::set_direction(const Vec2f &dir) { 
     direction_ = dir;
+	//direction_ = direction_.normalize();
 }
 
 

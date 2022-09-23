@@ -11,6 +11,7 @@ class Entity
 {
 public:
     using ptr = std::shared_ptr<Entity>;
+	using weak_ptr = std::weak_ptr<Entity>;
     
     Entity();
     virtual ~Entity();

@@ -25,6 +25,8 @@ public:
 private:
 	Sprite sprite_;
 	AnimationSprite anim_sprite_;
+	Entity::ptr ball_;
+	Entity::ptr rocket_;
 };
 
 #endif /* simple_scene_hpp */

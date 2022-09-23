@@ -9,6 +9,7 @@
 #define scene_h
 
 #include "entity.h"
+#include "physics.h"
 
 #include <vector>
 
@@ -28,6 +29,9 @@ public:
     
     void attach_entity(Entity::ptr ptr);
     void detach_entity(Entity::ptr ptr);
+
+	void set_physic_world(physics::World::ptr world);
+	physics::World* get_physic_world();
     
     void update_internal(Game& game);
     
@@ -35,6 +39,7 @@ private:
 	using AttachedEntity = std::pair<bool, Entity::ptr>;
     std::vector<AttachedEntity> entities_;
     std::vector<AttachedEntity> added_entities_;
+	physics::World::ptr			world_;
 };
 
 #endif /* scene_h */

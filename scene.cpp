@@ -61,3 +61,10 @@ void Scene::update_internal(Game &game) {
     added_entities_.clear();
 }
 
+void Scene::set_physic_world(physics::World::ptr world) {
+	world_ = std::move(world);
+}
+
+physics::World* Scene::get_physic_world() {
+	return world_.get();
+}

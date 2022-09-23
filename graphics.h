@@ -30,6 +30,14 @@ struct Rect
 	int32_t h;
 };
 
+struct Color
+{
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+	uint8_t a;
+};
+
 class Graphics {
 public:
     Graphics(int32_t width, int32_t height, const std::string& title);
@@ -42,6 +50,7 @@ public:
     void clear_frame();
     
 	void draw_texture(const Texture& texture, const Rect& src, const Rect& dest);
+	void draw_square(const Rect& dest, const Color& color);
     
     int32_t get_width() const;
     int32_t get_height() const;

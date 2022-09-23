@@ -89,3 +89,8 @@ int32_t Game::get_elapsed() const {
 int32_t Game::get_tick() const { 
 	return tick_time_;
 }
+
+
+int32_t Game::get_lag() const { 
+	return lag_;
+}

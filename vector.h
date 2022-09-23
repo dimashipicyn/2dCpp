@@ -4,10 +4,6 @@
 template<class T>
 struct Vec2
 {
-    using ref = Vec2<T>&;
-    using ptr = Vec2<T>*;
-    using val = Vec2<T>;
-    
     T x;
     T y;
     
@@ -18,21 +14,21 @@ struct Vec2
         
     }
     
-    Vec2(T x, T y)
+    Vec2(const T& x, const T& y)
         : x(x)
         , y(y)
     {
         
     }
     
-    double length();
-    val add(ref vec2);
-    val sub(ref vec2);
-    val scalar(float n);
-    double scalar(ref vec2);
-    double distance(ref vec2);
-    val normalize();
-    val rotate(float angle);
+    double length() const;
+    Vec2<T> add(const Vec2<T>& vec2) const;
+    Vec2<T> sub(const Vec2<T>& vec2) const;
+    Vec2<T> scalar(float n) const;
+    double scalar(const Vec2<T>& vec2) const;
+    double distance(const Vec2<T>& vec2) const;
+    Vec2<T> normalize() const;
+    Vec2<T> rotate(float angle) const;
 };
 
 using Vec2i = Vec2<int>;
