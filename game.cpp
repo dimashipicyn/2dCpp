@@ -51,7 +51,7 @@ void Game::run()
         lag_ += elapsed_;
         
         while (lag_ >= tick_time_) {
-			active_scene_->update_internal(*this);
+			active_scene_->update(*this);
             lag_ -= tick_time_;
         }
 

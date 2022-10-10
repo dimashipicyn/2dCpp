@@ -33,8 +33,6 @@ public:
 	void set_physic_world(physics::World::ptr world);
 	physics::World* get_physic_world();
     
-    void update_internal(Game& game);
-    
 private:
 	using AttachedEntity = std::pair<bool, Entity::ptr>;
     std::vector<AttachedEntity> entities_;

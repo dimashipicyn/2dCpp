@@ -63,6 +63,11 @@ Vec2<T> Vec2<T>::rotate(float angle) const
     return rv;
 }
 
+template<class T>
+Vec2<T> Vec2<T>::operator-() const {
+	return Vec2<T>(-x, -y);
+}
+
 template struct Vec2<int>;
 template struct Vec2<float>;
 template struct Vec2<double>;

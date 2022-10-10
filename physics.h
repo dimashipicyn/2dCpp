@@ -2,10 +2,11 @@
 #define PHYSICS_H
 
 #include "vector.h"
-#include "entity.h"
 
 #include <vector>
 #include <memory>
+
+class Entity;
 
 namespace physics {
 
@@ -17,12 +18,16 @@ enum class ColliderType
 
 struct AABB
 {
+	AABB();
+	AABB(float x, float y, float w, float h);
     Vec2f pos;
     Vec2f size;
 };
 
 struct Circle
 {
+	Circle();
+	Circle(float x, float y, float r);
     Vec2f pos;
 	float radius;
 };
@@ -35,6 +40,8 @@ public:
 	~Collider();
 
 	bool has_intersection(const Collider& other) const;
+	Vec2f get_position() const;
+	void set_position(const Vec2f& pos);
 
 private:
 	bool has_intersection(const AABB& aabb_1, const AABB& aabb_2) const;
@@ -55,16 +62,25 @@ enum class Layer : int {
 	LAYER_3 = 4
 };
 
+class World;
+
 class Body
 {
 public:
 	using ptr = std::shared_ptr<Body>;
+	using entity_ptr = std::shared_ptr<Entity>;
+	using entity_weak_ptr = std::weak_ptr<Entity>;
 
+	friend class World;
+
+	Body();
 	Body(const AABB& aabb);
 	Body(const Circle& circle);
 	~Body();
 
-	void set_owner(Entity::ptr owner);
+	bool has_collision() const;
+
+	void set_owner(entity_ptr owner);
 	void set_position(const Vec2f& pos);
 	void set_direction(const Vec2f& dir);
 	void set_layer(Layer layer);
@@ -73,7 +89,7 @@ public:
 	void set_mass(float mass);
 	void set_active(bool active);
 
-	Entity::ptr get_owner() const;
+	entity_ptr get_owner() const;
 	Collider get_collider() const;
 	Vec2f get_position() const;
 	Vec2f get_direction() const;
@@ -84,15 +100,15 @@ public:
 	bool is_active() const;
 
 private:
-    Entity::weak_ptr	owner_;
+    entity_weak_ptr		owner_;
 	Collider			collider_;
-	Vec2f				position_;
 	Vec2f           	direction_;
 	Layer				layer_;
     float   	        velocity_;
 	float				acceleration_;
 	float				mass_;
 	bool            	is_active_;
+	bool				has_collision_;
 };
 
 class World
@@ -104,7 +120,7 @@ public:
 	~World();
 
 
-    void step();
+    void step(float dt);
 
 	void add_body(Body::ptr body, bool dynamic);
 	void remove_body(Body::ptr body);

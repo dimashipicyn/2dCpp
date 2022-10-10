@@ -11,9 +11,27 @@ void Scene::start(Game& /*game*/)
 {
 }
 
-void Scene::update(Game& /*game*/)
+void Scene::update(Game& game)
 {
-    
+    for (auto& entity : entities_) {
+        if (entity.first) {
+            entity.second->input(game);
+            entity.second->update(game);
+        }
+    }
+
+    for (auto entity_itr = entities_.begin(); entity_itr != entities_.end();) {
+        if (!entity_itr->first) {
+            std::swap(*entity_itr, entities_.back());
+            entities_.pop_back();
+        }
+        else {
+            entity_itr++;
+        }
+    }
+
+    entities_.insert(entities_.end(), std::make_move_iterator(added_entities_.begin()), std::make_move_iterator(added_entities_.end()));
+    added_entities_.clear();
 }
 
 void Scene::render(Game& game)
@@ -34,31 +52,6 @@ void Scene::detach_entity(Entity::ptr entity)
     if (found != entities_.end()) {
         found->first = false;
     }
-}
-
-void Scene::update_internal(Game &game) {
-    
-    this->update(game);
-    
-    for (auto& entity : entities_) {
-        if (entity.first) {
-            entity.second->input(game);
-            entity.second->update(game);
-        }
-    }
-    
-    for (auto entity_itr = entities_.begin(); entity_itr != entities_.end();) {
-        if (!entity_itr->first) {
-            std::swap(*entity_itr, entities_.back());
-            entities_.pop_back();
-        }
-        else {
-            entity_itr++;
-        }
-    }
-    
-    entities_.insert(entities_.end(), std::make_move_iterator(added_entities_.begin()), std::make_move_iterator(added_entities_.end()));
-    added_entities_.clear();
 }
 
 void Scene::set_physic_world(physics::World::ptr world) {

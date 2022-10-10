@@ -29,6 +29,7 @@ struct Vec2
     double distance(const Vec2<T>& vec2) const;
     Vec2<T> normalize() const;
     Vec2<T> rotate(float angle) const;
+	Vec2<T> operator-() const;
 };
 
 using Vec2i = Vec2<int>;

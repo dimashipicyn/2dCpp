@@ -8,8 +8,7 @@
 #include "entity.h"
 
 Entity::Entity()
-    : position_()
-    , direction_()
+    : body_(std::make_shared<physics::Body>())
 {
 }
 
@@ -17,27 +16,33 @@ Entity::~Entity() {
 }
 
 void Entity::rotate(float rot) {
-    direction_ = direction_.rotate(rot);
+	body_->set_direction(body_->get_direction().rotate(rot));
 }
 
 void Entity::translate(float tr) {
-    auto v = direction_.scalar(tr);
-    position_ = position_.add(v);
+	auto v = body_->get_direction().scalar(tr);
+	body_->set_position(body_->get_position().add(v));
 }
 
 Vec2f Entity::get_position() const {
-    return position_;
+	return body_->get_position();
 }
 Vec2f Entity::get_direction() const {
-    return direction_;
+	return body_->get_direction();
+}
+
+Entity::body_ptr Entity::get_body() {
+	return body_;
 }
 
 void Entity::set_direction(const Vec2f &dir) { 
-    direction_ = dir;
-	//direction_ = direction_.normalize();
+    body_->set_direction(dir);
 }
 
-
 void Entity::set_position(const Vec2f &pos) {
-    position_ = pos;
+	body_->set_position(pos);
+}
+
+void Entity::set_body(body_ptr body) {
+	body_ = std::move(body);
 }
