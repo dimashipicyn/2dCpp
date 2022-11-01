@@ -19,6 +19,15 @@ Sprite::Sprite()
 {
 }
 
+Sprite::Sprite(const Texture& texture)
+: texture_(texture)
+, src_(0,0,texture.get_w(), texture.get_h())
+, dest_(0,0,texture.get_w(), texture.get_h())
+, scale_(1)
+{
+
+}
+
 Sprite::Sprite(const Texture& texture, const Rect& src, const Rect& dest)
     : texture_(texture)
     , src_(src)
@@ -59,7 +68,7 @@ float Sprite::get_scale() const {
 }
 
 void Sprite::draw(Graphics &graphics) {
-    graphics.draw_texture(texture_, src_, dest_);
+    graphics.draw_texture(texture_, src_, dest_, color_);
 }
 
 void Sprite::set_position(int x, int y) {
@@ -70,4 +79,8 @@ void Sprite::set_position(int x, int y) {
 void Sprite::set_size(int w, int h) {
     dest_.w = w;
     dest_.h = h;
+}
+
+void Sprite::set_color(const Color& color) {
+	color_ = color;
 }

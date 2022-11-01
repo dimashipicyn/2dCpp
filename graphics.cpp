@@ -87,10 +87,12 @@ Drawable::~Drawable() {
 }
 
 
-void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect &dest) {
+void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect &dest, const Color& color) {
 	SDL_Rect s{src.x, src.y, src.w, src.h};
 	SDL_Rect d{dest.x, dest.y, dest.w, dest.h};
+	SDL_SetTextureColorMod(texture.texture_.get(), color.r, color.g, color.b);
 	SDL_RenderCopy(renderer_, texture.texture_.get(), &s, &d);
+	SDL_SetTextureColorMod(texture.texture_.get(), 255, 255, 255);
 }
 
 

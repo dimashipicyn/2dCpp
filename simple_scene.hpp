@@ -9,10 +9,12 @@
 #define simple_scene_hpp
 
 #include <memory>
+#include <vector>
 
 #include "scene.h"
 #include "Sprite.h"
 #include "AnimationSprite.hpp"
+#include "physics.h"
 
 class Simple_scene : public Scene
 {
@@ -27,7 +29,8 @@ private:
 	AnimationSprite anim_sprite_;
 	Entity::ptr ball_;
 	Entity::ptr rocket_;
-	
+	physics::Body::ptr walls[3];
+	std::vector<Entity::ptr> blocks;
 };
 
 #endif /* simple_scene_hpp */

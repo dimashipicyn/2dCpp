@@ -35,6 +35,10 @@ Entity::body_ptr Entity::get_body() {
 	return body_;
 }
 
+float Entity::get_velosity() const {
+	return body_->get_velocity();
+}
+
 void Entity::set_direction(const Vec2f &dir) { 
     body_->set_direction(dir);
 }
@@ -45,4 +49,8 @@ void Entity::set_position(const Vec2f &pos) {
 
 void Entity::set_body(body_ptr body) {
 	body_ = std::move(body);
+}
+
+void Entity::set_velosity(float vel) {
+	body_->set_velocity(vel);
 }

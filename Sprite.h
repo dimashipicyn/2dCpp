@@ -16,6 +16,7 @@ class Sprite
 {
 public:
     Sprite();
+	Sprite(const Texture& texture);
     Sprite(const Texture& texture, const Rect& src, const Rect& dest);
     ~Sprite() noexcept;
     
@@ -24,6 +25,7 @@ public:
     void set_scale(float pt);
     void set_position(int x, int y);
     void set_size(int w, int h);
+	void set_color(const Color& color);
     
     float get_scale() const;
     
@@ -39,6 +41,7 @@ protected:
     Rect    src_;
     Rect    dest_;
     float   scale_;
+	Color	color_;
 };
 
 #endif /* Sprite_h */

@@ -25,10 +25,12 @@ public:
     Vec2f get_position() const;
     Vec2f get_direction() const;
 	body_ptr get_body();
+	float get_velosity() const;
     
     void set_position(const Vec2f& pos);
     void set_direction(const Vec2f& dir);
 	void set_body(body_ptr body);
+	void set_velosity(float vel);
     
     void translate(float tr);
     void rotate(float rot);

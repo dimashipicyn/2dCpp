@@ -42,7 +42,10 @@ template<class T>
 Vec2<T> Vec2<T>::normalize() const
 {
     double len = length();
-    return {static_cast<T>(x * len), static_cast<T>(y * len)};
+	if (len > 0) {
+		return {static_cast<T>(x / len), static_cast<T>(y / len)};
+	}
+	return *this;
 }
 
 namespace {

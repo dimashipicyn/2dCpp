@@ -24,6 +24,12 @@ public:
 
 struct Rect
 {
+	Rect(int32_t _x = 0, int32_t _y = 0, int32_t _w = 0, int32_t _h = 0)
+		: x(_x)
+		, y(_y)
+		, w(_w)
+		, h(_h)
+	{}
 	int32_t x;
 	int32_t y;
 	int32_t w;
@@ -32,6 +38,12 @@ struct Rect
 
 struct Color
 {
+	Color(uint8_t _r = 255, uint8_t _g = 255, uint8_t _b = 255, uint8_t _a = 255)
+		: r(_r)
+		, g(_g)
+		, b(_b)
+		, a(_a)
+	{}
 	uint8_t r;
 	uint8_t g;
 	uint8_t b;
@@ -49,7 +61,7 @@ public:
     void render_frame();
     void clear_frame();
     
-	void draw_texture(const Texture& texture, const Rect& src, const Rect& dest);
+	void draw_texture(const Texture& texture, const Rect& src, const Rect& dest, const Color& color = Color());
 	void draw_square(const Rect& dest, const Color& color);
     
     int32_t get_width() const;

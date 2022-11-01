@@ -43,6 +43,9 @@ public:
 	Vec2f get_position() const;
 	void set_position(const Vec2f& pos);
 
+	const AABB& get_aabb() const;
+	const Circle& get_circle() const;
+
 private:
 	bool has_intersection(const AABB& aabb_1, const AABB& aabb_2) const;
 	bool has_intersection(const Circle& circle_1, const Circle& circle_2) const;
@@ -70,6 +73,7 @@ public:
 	using ptr = std::shared_ptr<Body>;
 	using entity_ptr = std::shared_ptr<Entity>;
 	using entity_weak_ptr = std::weak_ptr<Entity>;
+	using vector_collisions = std::vector<entity_weak_ptr>;
 
 	friend class World;
 
@@ -90,6 +94,7 @@ public:
 	void set_active(bool active);
 
 	entity_ptr get_owner() const;
+	vector_collisions get_collisions() const;
 	Collider get_collider() const;
 	Vec2f get_position() const;
 	Vec2f get_direction() const;
@@ -101,6 +106,7 @@ public:
 
 private:
     entity_weak_ptr		owner_;
+	vector_collisions	collisions_;
 	Collider			collider_;
 	Vec2f           	direction_;
 	Layer				layer_;

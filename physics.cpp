@@ -1,8 +1,10 @@
 #include "physics.h"
 #include "entity.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <SDL.h>
+#include <cassert>
+#include <cmath>
 
 namespace physics {
 
@@ -20,29 +22,63 @@ World::~World() {
 
 void World::resolve_collision(Body& one, Body& two)
 {
-	one.set_position(one.get_position().add(-one.get_direction().scalar(1000/60.0)));
-	one.set_velocity(0);
-	one.has_collision_ = true;
+	const auto& aabb_one = one.get_collider().get_aabb();
+	const auto& aabb_two = two.get_collider().get_aabb();
 
-	two.set_position(two.get_position().add(-two.get_direction().scalar(1000/60.0)));
-	two.set_velocity(0);
+	Vec2f one_half_size(aabb_one.size.x / 2, aabb_one.size.y / 2);
+	Vec2f two_half_size(aabb_two.size.x / 2, aabb_two.size.y / 2);
+
+	Vec2f center_one(aabb_one.pos.x + one_half_size.x, aabb_one.pos.y + one_half_size.y);
+	Vec2f center_two(aabb_two.pos.x + two_half_size.x, aabb_two.pos.y + two_half_size.y);
+	Vec2f diff = center_one.sub(center_two);
+
+	Vec2f normal(0, 0);
+	float penetration = 0;
+
+	float x_overlap = (one_half_size.x + two_half_size.x) - fabs(diff.x);
+	if (x_overlap > 0) {
+		float y_overlap = (one_half_size.y + two_half_size.y) - fabs(diff.y);
+		if (x_overlap < y_overlap) {
+			if (diff.x < 0) {
+				normal = Vec2f(-1, 0);
+			}
+			else {
+				normal = Vec2f(1, 0);
+			}
+			penetration = x_overlap;
+		}
+		else {
+			if (diff.y < 0) {
+				normal = Vec2f(0, -1);
+			}
+			else {
+				normal = Vec2f(0, 1);
+			}
+			penetration = y_overlap;
+		}
+	}
+
+	Vec2f one_dir = one.get_direction();
+	float one_vel = one.get_velocity();
+	Vec2f two_dir = two.get_direction();
+	float two_vel = two.get_velocity();
+	one.set_direction(one_dir.add(two_dir.scalar(two_vel)).normalize());
+	one.set_velocity(one_vel + (two_vel * one_dir.scalar(two_dir)));
+
+	one.set_position(one.get_position().add(normal.scalar(penetration + 1)));
+	one_dir = one.get_direction();
+	if (normal.x) {
+		one.set_direction(Vec2f(-one_dir.x, one_dir.y));
+	}
+	else {
+		one.set_direction(Vec2f(one_dir.x, -one_dir.y));
+	}
+
+	one.has_collision_ = true;
+	one.collisions_.push_back(two.get_owner());
+
 	two.has_collision_ = true;
-//	auto aabb_a = one.get_collider();
-//	auto aabb_b = two.get_collider();
-//
-//	if ((a.pos.x + a.size.x) < (b.pos.x + b.size.x * 0.5)) {
-//		a.pos.x = b.pos.x + a.size.x;
-//	}
-//	else {
-//		a.pos.x = b.pos.x + b.size.x;
-//	}
-//
-//    if ((a.pos.y + a.size.y) < (b.pos.y + b.size.y * 0.5)) {
-//		a.pos.y = b.pos.y + a.size.y;
-//    }
-//	else {
-//		a.pos.y = b.pos.y + b.size.y;
-//	}
+	two.collisions_.push_back(one.get_owner());
 }
 
 void World::process_collision(Body& one, Body& two) {
@@ -55,19 +91,25 @@ void World::process_collision(Body& one, Body& two) {
 
 	bool has_intersect = one.get_collider().has_intersection(two.get_collider());
 	if (has_intersect) {
-		//d_body->contacted_bodyes.push_back(s_body.get());
 		resolve_collision(one, two);
 	}
 }
 
 void World::step(float dt)
 {
+	for (auto& two : static_body_)
+	{
+		two->has_collision_ = false;
+		two->collisions_.clear();
+	}
+
     for (auto& one : dynamic_body_)
     {
         if (!one->is_active()) {
             continue;
         }
 		one->has_collision_ = false;
+		one->collisions_.clear();
 
         for (auto& two : static_body_)
         {
@@ -82,6 +124,15 @@ void World::step(float dt)
             if (!two->is_active() || (one.get() == two.get())) {
                 continue;
             }
+//			bool is_already_collision = false;
+//			for (auto& two_col : two->collisions_) {
+//				if (auto p = two_col.lock(); p && p->get_body().get() == one.get()) {
+//					is_already_collision = true;
+//				}
+//			}
+//			if (is_already_collision) {
+//				continue;
+//			}
 			process_collision(*one, *two);
         }
     }
@@ -212,6 +263,16 @@ void Collider::set_position(const Vec2f& pos) {
 	}
 }
 
+const AABB& Collider::get_aabb() const {
+	assert(type_ == ColliderType::AABB);
+	return aabb_;
+}
+
+const Circle& Collider::get_circle() const {
+	assert(type_ == ColliderType::CIRCLE);
+	return circle_;
+}
+
 Body::Body()
 	: owner_()
 	, collider_(AABB())
@@ -221,6 +282,7 @@ Body::Body()
 	, acceleration_(0)
 	, mass_(0)
 	, is_active_(false)
+	, has_collision_(false)
 {
 
 }
@@ -295,6 +357,10 @@ void Body::set_active(bool active) {
 Body::entity_ptr Body::get_owner() const {
 	auto o = owner_.lock();
 	return o;
+}
+
+Body::vector_collisions Body::get_collisions() const {
+	return collisions_;
 }
 
 Collider Body::get_collider() const {
