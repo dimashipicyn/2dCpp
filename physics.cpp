@@ -239,6 +239,7 @@ bool Collider::has_intersection(const Circle& circle_1, const Circle& circle_2) 
 }
 
 bool Collider::has_intersection(const AABB& aabb, const Circle& circle) const {
+	
 	return false;
 }
 
@@ -296,6 +297,7 @@ Body::Body(const AABB& aabb)
 	, acceleration_(0)
 	, mass_(0)
 	, is_active_(false)
+	, has_collision_(false)
 {
 
 }
@@ -309,6 +311,7 @@ Body::Body(const Circle& circle)
 	, acceleration_(0)
 	, mass_(0)
 	, is_active_(false)
+	, has_collision_(false)
 {
 
 }

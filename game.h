@@ -37,14 +37,14 @@ public:
     
 private:
 	
-    int32_t         width_;
-    int32_t         heigth_;
+    int32_t         width_ = 0;
+    int32_t         heigth_ = 0;
     std::string     name_;
     
-    int32_t         tick_time_;
-	int32_t			lag_;
-	int32_t			previous_time_;
-    int32_t     	elapsed_;
+    int32_t         tick_time_ = 0;
+	int32_t			lag_ = 0;
+	int32_t			previous_time_ = 0;
+    int32_t     	elapsed_ = 0;
     
     std::map<std::string, Scene::ptr> scenes_;
     Scene* active_scene_;

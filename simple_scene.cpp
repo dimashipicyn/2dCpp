@@ -15,15 +15,18 @@
 #include <SDL.h>
 #include <fstream>
 
-class SimpleBall : public Entity
+Simple_scene::~Simple_scene() noexcept {
+}
+
+class Ball : public Entity
 {
 public:
-	SimpleBall(const Sprite& sprite)
+	Ball(const Sprite& sprite)
 		: ball_(sprite)
 	{
 
 	};
-	virtual ~SimpleBall() {};
+	virtual ~Ball() {};
 
 	virtual void input(Game& game) override {};
 
@@ -50,7 +53,9 @@ public:
 class Rocket : public Entity
 {
 public:
-	Rocket() {
+	Rocket(const Sprite& sprite)
+		: sprite_(sprite)
+	{
 
 	};
 	virtual ~Rocket() {};
@@ -74,12 +79,13 @@ public:
 		auto pos = get_position();
 		auto dir = get_direction();
 		pos = pos.add(dir.scalar(game.get_lag() * get_velosity()));
-		square.x = pos.x - square.w / 2;
-		square.y = pos.y - square.h / 2;
-		game.get_graphics().draw_square(square, {0xFF,0xFF,0,0xFF});
+		int x = pos.x - sprite_.get_width() / 2;
+		int y = pos.y - sprite_.get_height() / 2;
+		sprite_.set_position(x, y);
+		sprite_.draw(game.get_graphics());
 	}
 
-	Rect square;
+	Sprite sprite_;
 };
 
 class Block : public Entity
@@ -91,7 +97,9 @@ public:
 	};
 	virtual ~Block() {};
 
-	virtual void input(Game& game) override {};
+	virtual void input(Game& game) override {
+
+	};
 
 	virtual void update(Game& game) override {
 	}
@@ -102,6 +110,7 @@ public:
 	}
 
 	Sprite block_;
+	bool solid_ = false;
 };
 
 struct Level {
@@ -129,67 +138,9 @@ struct Level {
 	}
 };
 
-void Simple_scene::update(Game &game) {
-	//Scene::update(game);
-
-	if (ball_->get_velosity() < 0.1) {
-		float button = game.get_input().get_button(Input::Button::MouseLeft);
-		if (button > 0.1) {
-			ball_->set_velosity(0.5);
-			ball_->set_direction(Vec2f(0, -1));
-		}
-	}
-
+void Simple_scene::create_walls(int width, int height) {
 	auto w = get_physic_world();
-	blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&w](Entity::ptr& block) {
-		if (block->get_body()->has_collision()) {
-			w->remove_body(block->get_body());
-			return true;
-		}
-		return false;
-	}), blocks.end());
 
-	ball_->update(game);
-	rocket_->update(game);
-	get_physic_world()->step(0);
-}
-
-
-void Simple_scene::start(Game &game) {
-	SET_LOG_LEVEL(LOG_LEVEL_INFO);
-
-	auto width = game.get_graphics().get_width();
-	auto height = game.get_graphics().get_height();
-
-	auto w = std::make_unique<physics::World>(1.5);
-
-	Sprite ball_sprite;
-	ball_sprite.load(game.get_graphics(), "assets/ball.png");
-	auto ball = std::make_shared<SimpleBall>(ball_sprite);
-	auto rocket = std::make_shared<Rocket>();
-
-	auto ball_body = std::make_shared<physics::Body>(physics::AABB(width / 2.0 - 10, height - 50, 20, 20));
-	auto rocket_body = std::make_shared<physics::Body>(physics::AABB(width / 2.0 - 50, height - 30, 100, 20));
-
-	ball_body->set_active(true);
-	ball_body->set_layer(physics::Layer::LAYER_1);
-	ball_body->set_owner(ball);
-	ball->set_body(ball_body);
-	//ball->square = Rect{width / 2 - 20, height - 50, 20, 20};
-	w->add_body(ball_body, true);
-
-	rocket_body->set_active(true);
-	rocket_body->set_layer(physics::Layer::LAYER_1);
-	rocket_body->set_owner(rocket);
-	rocket->set_body(rocket_body);
-	rocket->square = Rect{width / 2 - 50, height - 30, 100, 20};
-	w->add_body(rocket_body, true);
-
-	ball_ = std::move(ball);
-	rocket_ = std::move(rocket);
-
-
-	// create walls
 	physics::AABB walls_aabb[3] = {
 		{-20, -20, 20 ,static_cast<float>(height + 20)},
 		{static_cast<float>(width), -20, 20, static_cast<float>(height + 20)},
@@ -205,22 +156,24 @@ void Simple_scene::start(Game &game) {
 		w->add_body(wall_body, false);
 		walls[i] = std::move(wall_body);
 	}
+}
 
-	Texture block_simple;
-	Texture block_solid;
-	block_simple.load(game.get_graphics(), "assets/block.png");
-	block_solid.load(game.get_graphics(), "assets/block_solid.png");
-	Sprite solid(block_solid);
-	Sprite simple(block_simple);
+void Simple_scene::load_level(Game& game, int width, int height, int num) {
+	auto w = get_physic_world();
+
+	Sprite solid;
+	Sprite simple;
+	solid.load(game.get_graphics(), "assets/block_solid.png");
+	simple.load(game.get_graphics(), "assets/block.png");
 
 	Level level;
-	level.load_in_file("levels/1.txt");
+	level.load_in_file("levels/" + std::to_string(num) + ".txt");
 
-	//create blocks
 	int x = 0;
 	int y = 0;
 	int size_x = width / level.size_x;
 	int size_y = height / 2 / level.size_y;
+
 	simple.set_size(size_x, size_y);
 	solid.set_size(size_x, size_y);
 
@@ -232,42 +185,178 @@ void Simple_scene::start(Game &game) {
 		{0,255,255},
 		{0,0,255}
 	};
-	for (const auto& b : level.blocks) {
-		auto s = (b == 1 ? solid : simple);
-		s.set_position(x, y);
-		s.set_color(colors[b]);
-		auto block = std::make_shared<Block>(s);
-		physics::AABB block_aabb(x, y, size_x, size_y);
-		auto block_body = std::make_shared<physics::Body>(block_aabb);
-		block_body->set_active(true);
-		block_body->set_layer(physics::Layer::LAYER_1);
-		block_body->set_owner(block);
-		block->set_body(block_body);
-		w->add_body(block->get_body(), false);
-		blocks.emplace_back(std::move(block));
-		x += size_x;
 
+	for (const auto& b : level.blocks) {
+		if (b > 0) {
+			bool is_solid = (b == 1);
+
+			Sprite s = (is_solid ? solid : simple);
+			s.set_position(x, y);
+			s.set_color(colors[b]);
+
+			auto block = std::make_shared<Block>(s);
+			auto block_body = std::make_shared<physics::Body>(physics::AABB(x, y, size_x, size_y));
+
+			block_body->set_active(true);
+			block_body->set_layer(physics::Layer::LAYER_1);
+			block_body->set_owner(block);
+			w->add_body(block_body, false);
+
+			block->set_body(block_body);
+			block->solid_ = is_solid;
+
+			blocks.emplace_back(std::move(block));
+		}
+
+		x += size_x;
 		if (x == width) {
 			y += size_y;
 		}
 		x %= width;
 	}
-
-	set_physic_world(std::move(w));
 }
 
-Simple_scene::~Simple_scene() noexcept { 
+void Simple_scene::create_ball(Game& game, int width, int height) {
+	auto w = get_physic_world();
+
+	Sprite ball_sprite;
+	ball_sprite.load(game.get_graphics(), "assets/ball.png");
+
+	int min_size = std::min(width, height);
+	int rocket_size_h = height / 30;
+
+	int size = min_size / 20;
+	int x = width / 2 - size;
+	int y = height - rocket_size_h - size / 2;
+
+	ball_sprite.set_size(size, size);
+	auto ball = std::make_shared<Ball>(ball_sprite);
+	auto ball_body = std::make_shared<physics::Body>(physics::AABB(x, y, size, size));
+
+	ball_body->set_active(true);
+	ball_body->set_layer(physics::Layer::LAYER_1);
+	ball_body->set_owner(ball);
+	w->add_body(ball_body, true);
+
+	ball->set_body(ball_body);
+
+	ball_ = std::move(ball);
+}
+
+void Simple_scene::create_rocket(Game& game, int width, int height) {
+	auto w = get_physic_world();
+
+	Sprite rocket_sprite;
+	rocket_sprite.load(game.get_graphics(), "assets/paddle.png");
+
+	int size_w = width / 8;
+	int size_h = height / 30;
+	int x = width / 2 - size_w / 2;
+	int y = height - size_h;
+
+	rocket_sprite.set_position(x, y);
+	rocket_sprite.set_size(size_w, size_h);
+	auto rocket = std::make_shared<Rocket>(rocket_sprite);
+
+	auto rocket_body = std::make_shared<physics::Body>(physics::AABB(x, y, size_w, size_h));
+
+	rocket_body->set_active(true);
+	rocket_body->set_layer(physics::Layer::LAYER_1);
+	rocket_body->set_owner(rocket);
+	w->add_body(rocket_body, true);
+
+	rocket->set_body(rocket_body);
+
+	rocket_ = std::move(rocket);
+}
+
+Vec2f Simple_scene::get_ball_start_pos() {
+	auto rocket_pos = rocket_->get_position();
+	auto rocket_h = rocket_->sprite_.get_height();
+	auto ball_h = ball_->ball_.get_height();
+	return Vec2f(rocket_pos.x, rocket_pos.y - rocket_h / 2 - ball_h / 2 - 0.1);
+}
+
+void Simple_scene::next_level(Game& game) {
+	current_level++;
+	int w = game.get_graphics().get_width();
+	int h = game.get_graphics().get_height();
+	load_level(game, w, h, current_level);
+
+	ball_->set_velosity(0);
+	ball_->set_position(get_ball_start_pos());
+
+	auto rocket_pos = rocket_->get_position();
+	rocket_->set_position(Vec2f(w / 2, rocket_pos.y));
+}
+
+void Simple_scene::start(Game &game) {
+	SET_LOG_LEVEL(LOG_LEVEL_INFO);
+
+	set_physic_world(std::make_unique<physics::World>(1.5));
+
+	auto width = game.get_graphics().get_width();
+	auto height = game.get_graphics().get_height();
+
+	create_ball(game, width, height);
+	create_rocket(game, width, height);
+
+	create_walls(width, height);
+	load_level(game, width, height, current_level);
+}
+
+void Simple_scene::update(Game &game) {
+	//Scene::update(game);
+
+	if (ball_->get_velosity() == 0) {
+		float button = game.get_input().get_button(Input::Button::MouseLeft);
+		if (button > 0.1) {
+			ball_->set_velosity(0.1);
+			ball_->set_direction(Vec2f(0, -1));
+		}
+
+		ball_->set_position(get_ball_start_pos());
+	}
+
+	auto ball_pos = ball_->get_position();
+	int height = game.get_graphics().get_height();
+	if (ball_pos.y > height) {
+		ball_->set_velosity(0);
+		ball_->set_position(get_ball_start_pos());
+	}
+
+	auto w = get_physic_world();
+	blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&w](auto& block) {
+		bool has_collision = block->get_body()->has_collision();
+		bool is_solid = block->solid_;
+		if (has_collision && !is_solid) {
+			w->remove_body(block->get_body());
+			return true;
+		}
+		return false;
+	}), blocks.end());
+
+	auto found_simple_blocks = std::find_if(blocks.begin(), blocks.end(), [](auto& block) {
+		if (!block->solid_) {
+			return true;
+		}
+		return false;
+	});
+	if (found_simple_blocks == blocks.end()) {
+		next_level(game);
+	}
+
+	ball_->update(game);
+	rocket_->update(game);
+	get_physic_world()->step(0);
 }
 
 void Simple_scene::render(Game &game) { 
-//	sprite_.draw(game.get_graphics());
-//	anim_sprite_.draw(game.get_graphics(), game.get_tick());
 	ball_->render(game);
 	rocket_->render(game);
 
 	for (int i = 0; i < blocks.size(); i++) {
 		blocks[i]->render(game);
 	}
-	//game.get_graphics().draw_square({220,220,10,10}, {0x0,0xFF,0,0xFF});
 }
 
