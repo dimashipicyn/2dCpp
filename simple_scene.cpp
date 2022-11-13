@@ -278,6 +278,14 @@ Vec2f Simple_scene::get_ball_start_pos() {
 }
 
 void Simple_scene::next_level(Game& game) {
+	auto world = get_physic_world();
+
+	std::for_each(blocks.begin(), blocks.end(), [world](auto& block) {
+		world->remove_body(block->get_body());
+	});
+
+	blocks.clear();
+
 	current_level++;
 	int w = game.get_graphics().get_width();
 	int h = game.get_graphics().get_height();
