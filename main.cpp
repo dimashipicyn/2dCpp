@@ -7,7 +7,7 @@ int main(int ac, char** argv, char** env) {
     (void)env;
 
 	Config config;
-	config.width = 640;
+	config.width = 600;
 	config.heigth = 480;
 	config.name = "Breakout";
 

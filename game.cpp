@@ -19,6 +19,7 @@ Game::Game(const Config &config)
     , tick_time_(1000 / 60)
 {
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
+	audio_ = std::make_unique<Audio>();
 }
 
 Game::~Game()
@@ -93,4 +94,9 @@ int32_t Game::get_tick() const {
 
 int32_t Game::get_lag() const { 
 	return lag_;
+}
+
+
+Audio &Game::get_audio() {
+	return *audio_;
 }

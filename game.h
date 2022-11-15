@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "scene.h"
 #include "input.h"
+#include "Audio.hpp"
 
 #include <cstdint>
 #include <string>
@@ -25,6 +26,7 @@ public:
     
     Graphics& get_graphics();
 	Input& get_input();
+	Audio& get_audio();
 
 	int32_t get_tick() const;
 	int32_t get_elapsed() const;
@@ -51,6 +53,7 @@ private:
 
 	Input input_;
     std::unique_ptr<Graphics> graphics_;
+	std::unique_ptr<Audio> audio_;
 };
 
 

@@ -102,6 +102,10 @@ public:
 	};
 
 	virtual void update(Game& game) override {
+		auto body = get_body();
+		if (body->has_collision()) {
+			game.get_audio().play_chunk("solid");
+		}
 	}
 
 	virtual void render(Game& game) override {
@@ -221,11 +225,12 @@ void Simple_scene::create_ball(Game& game, int width, int height) {
 
 	Sprite ball_sprite;
 	ball_sprite.load(game.get_graphics(), "assets/ball.png");
+	ball_sprite.set_color(Color(0,255,0));
 
 	int min_size = std::min(width, height);
 	int rocket_size_h = height / 30;
 
-	int size = min_size / 20;
+	int size = min_size / 25;
 	int x = width / 2 - size;
 	int y = height - rocket_size_h - size / 2;
 
@@ -311,6 +316,11 @@ void Simple_scene::start(Game &game) {
 
 	create_walls(width, height);
 	load_level(game, width, height, current_level);
+
+	game.get_audio().load_music("breakout", "audio/breakout.wav");
+	game.get_audio().load_chunk("solid", "audio/solid.wav");
+
+	game.get_audio().play_music("breakout");
 }
 
 void Simple_scene::update(Game &game) {
@@ -331,6 +341,10 @@ void Simple_scene::update(Game &game) {
 	if (ball_pos.y > height) {
 		ball_->set_velosity(0);
 		ball_->set_position(get_ball_start_pos());
+	}
+
+	for (auto& block : blocks) {
+		block->update(game);
 	}
 
 	auto w = get_physic_world();
