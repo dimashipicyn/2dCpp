@@ -100,3 +100,7 @@ int32_t Game::get_lag() const {
 Audio &Game::get_audio() {
 	return *audio_;
 }
+
+Scene* Game::get_active_scene() {
+	return active_scene_;
+}

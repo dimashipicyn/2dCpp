@@ -27,13 +27,14 @@ public:
     virtual void start(Game& game) override;
     virtual void update(Game& game) override;
 	virtual void render(Game& game) override;
+
+	Vec2f get_ball_start_pos();
     
 private:
 	void create_walls(int width, int height);
 	void load_level(Game& game, int width, int height, int num);
 	void create_rocket(Game& game, int width, int height);
 	void create_ball(Game& game, int width, int height);
-	Vec2f get_ball_start_pos();
 	void next_level(Game& game);
 
 	std::shared_ptr<Ball> ball_;

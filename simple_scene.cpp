@@ -29,13 +29,29 @@ public:
 	};
 	virtual ~Ball() {};
 
-	virtual void input(Game& game) override {};
+	virtual void input(Game& game) override {
+		if (!run_) {
+			float button = game.get_input().get_button(Input::Button::MouseLeft);
+			if (button > 0.1) {
+				set_velosity(0.2);
+				set_direction(Vec2f(0.5, -0.5));
+				run_ = true;
+			}
+		}
+	};
 
 	virtual void update(Game& game) override {
-		if (get_velosity() > 0.7) {
-			set_velosity(0.7);
+		Simple_scene* scene = static_cast<Simple_scene*>(game.get_active_scene());
+		auto ball_pos = get_position();
+		int height = game.get_graphics().get_height();
+		if (ball_pos.y > height) {
+			run_ = false;
+			set_position(scene->get_ball_start_pos());
 		}
+
 		translate(get_velosity() * game.get_tick());
+		//float new_velocity = get_velosity();
+		//set_velosity(new_velocity + 0.0001);
 	}
 
 	virtual void render(Game& game) override {
@@ -49,6 +65,7 @@ public:
 	}
 
 	Sprite ball_;
+	bool run_ = false;
 };
 
 class Rocket : public Entity
@@ -61,19 +78,20 @@ public:
 	};
 	virtual ~Rocket() {};
 
-	virtual void input(Game& game) override {};
-
-	virtual void update(Game& game) override {
+	virtual void input(Game& game) override {
 		auto x_input = game.get_input().get_horizontal_axis();
 		if (x_input) {
 			set_direction(Vec2f(x_input, 0).normalize());
 			set_velosity(0.5);
-			translate(get_velosity() * game.get_tick());
 		}
 		else {
 			set_direction(Vec2f(0, 0));
 			set_velosity(0);
 		}
+	};
+
+	virtual void update(Game& game) override {
+		translate(get_velosity() * game.get_tick());
 	}
 
 	virtual void render(Game& game) override {
@@ -327,20 +345,12 @@ void Simple_scene::start(Game &game) {
 void Simple_scene::update(Game &game) {
 	//Scene::update(game);
 
-	if (ball_->get_velosity() == 0) {
-		float button = game.get_input().get_button(Input::Button::MouseLeft);
-		if (button > 0.1) {
-			ball_->set_velosity(0.1);
-			ball_->set_direction(Vec2f(0, -1));
-		}
+	ball_->input(game);
+	rocket_->input(game);
 
-		ball_->set_position(get_ball_start_pos());
-	}
-
-	auto ball_pos = ball_->get_position();
-	int height = game.get_graphics().get_height();
-	if (ball_pos.y > height) {
-		ball_->set_velosity(0);
+	if (!ball_->run_) {
+		ball_->set_velosity(rocket_->get_velosity());
+		ball_->set_direction(rocket_->get_direction());
 		ball_->set_position(get_ball_start_pos());
 	}
 
