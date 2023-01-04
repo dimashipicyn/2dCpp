@@ -31,6 +31,7 @@ public:
 	int32_t get_tick() const;
 	int32_t get_elapsed() const;
 	int32_t get_lag() const;
+	Scene* get_active_scene();
     
     void add_scene(Scene::ptr scene, const std::string& name);
     void set_active_scene(const std::string& name);
