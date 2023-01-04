@@ -7,7 +7,7 @@ endif()
 cmake_minimum_required(VERSION 3.0.0)
 project(2dCpp)
 
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-Wall) #-Wextra -pedantic)
 
 if (WIN32)
     set(VCPKG_SYSARCH "x64-windows")
@@ -40,6 +40,7 @@ set(SOURCE_FILES
     simple_scene.cpp
     Sprite_atlas.cpp
     log.cpp
+    Audio.cpp
 )
 
 set(HEADER_FILES 
@@ -52,10 +53,11 @@ set(HEADER_FILES
     AnimationSprite.hpp
     game.h
     scene.h
-	fonts.h
+    fonts.h
     Sprite.h
     Sprite_atlas.hpp
     log.h
+    Audio.hpp
 )
 
 set (CMAKE_CXX_STANDARD 17)
@@ -65,42 +67,27 @@ add_executable(${PROJECT_NAME}
     ${HEADER_FILES}
 )
 
-
-# find_library(APPKIT Appkit)
-# if (NOT APPKIT)
-#     message(FATAL_ERROR "Appkit not found")
-# endif()
-
-# find_library(OPENGL OpenGL)
-# if (NOT OPENGL)
-#     message(FATAL_ERROR "OpenGL not found")
-# endif()
-
-# add_subdirectory(utils)
-
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-image CONFIG REQUIRED)
-find_package(SDL2_ttf CONFIG REQUIRED)
-find_package(SDL2_mixer CONFIG REQUIRED)
-
+find_package(sdl2-ttf CONFIG REQUIRED)
+find_package(sdl2-mixer CONFIG REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    # utils
-    # "-framework Appkit"
-    # "-framework OpenGL"
 	SDL2::SDL2
 	SDL2::SDL2main
-	SDL2::SDL2-static
+	#SDL2::SDL2-static
 	SDL2::SDL2_image
-	SDL2_ttf::SDL2_ttf-static
-	SDL2_mixer::SDL2_mixer-static
-    jsoncpp_object jsoncpp_static JsonCpp::JsonCpp
+	#SDL2_ttf::SDL2_ttf-static
+	SDL2::SDL2_ttf
+	#SDL2_mixer::SDL2_mixer-static
+	SDL2::SDL2_mixer
+    #jsoncpp_object jsoncpp_static JsonCpp::JsonCpp
+	jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
 	"${PROJECT_SOURCE_DIR}"
-    # "${PROJECT_SOURCE_DIR}/utils"
 	${SDL2_INCLUDE_DIRS}
 	${SDL2IMAGE_INCLUDE_DIRS}
 )

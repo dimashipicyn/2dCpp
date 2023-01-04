@@ -10,6 +10,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <memory>
 
 typedef struct _Mix_Music Mix_Music;
 typedef struct Mix_Chunk Mix_Chunk;

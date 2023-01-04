@@ -14,6 +14,7 @@
 #include <cmath>
 #include <SDL.h>
 #include <fstream>
+#include <algorithm>
 
 Simple_scene::~Simple_scene() noexcept {
 }
