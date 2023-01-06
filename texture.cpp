@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "texture.h"
 #include "graphics.h"
 #include "log.h"
@@ -30,7 +32,7 @@ bool Texture::load(Graphics& graphics, const std::string &file_name)
 	}
 	SDL_SetColorKey(image.get(), SDL_TRUE, SDL_MapRGB(image->format, 0, 0, 0x01));
 
-    texture_.reset(SDL_CreateTextureFromSurface(graphics.renderer_, image.get()), SDL_DestroyTexture);
+    //texture_.reset(SDL_CreateTextureFromSurface(graphics.renderer_, image.get()), SDL_DestroyTexture);
     if (texture_ == nullptr) {
         LOG_ERROR("Could not create texture: " + file_name + ". Error: " + SDL_GetError());
         return false;

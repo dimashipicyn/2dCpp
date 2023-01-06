@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "scene.h"
 #include "entity.h"
 

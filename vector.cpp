@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "vector.h"
 
 #ifdef _MSC_VER

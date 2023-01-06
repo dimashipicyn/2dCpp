@@ -7,10 +7,12 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <glm/glm.hpp>
 
 typedef struct SDL_Window SDL_Window;
 typedef struct SDL_Renderer SDL_Renderer;
 typedef struct SDL_Texture SDL_Texture;
+typedef void* SDL_GLContext;
 
 class Graphics;
 
@@ -62,7 +64,7 @@ public:
     void clear_frame();
     
 	void draw_texture(const Texture& texture, const Rect& src, const Rect& dest, const Color& color = Color());
-	void draw_square(const Rect& dest, const Color& color);
+	void draw_square(const Rect& dest, const glm::vec4& color);
     
     int32_t get_width() const;
     int32_t get_height() const;
@@ -71,7 +73,7 @@ private:
 	friend class Texture;
     
     SDL_Window*		window_;
-	SDL_Renderer*	renderer_;
+	SDL_GLContext	gl_context_;
     int32_t w_;
     int32_t h_;
 

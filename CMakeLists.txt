@@ -41,6 +41,7 @@ set(SOURCE_FILES
     Sprite_atlas.cpp
     log.cpp
     Audio.cpp
+    Chronometer.cpp
 )
 
 set(HEADER_FILES 
@@ -58,6 +59,8 @@ set(HEADER_FILES
     Sprite_atlas.hpp
     log.h
     Audio.hpp
+    Chronometer.h
+    stdafx.h
 )
 
 set (CMAKE_CXX_STANDARD 17)
@@ -72,6 +75,8 @@ find_package(sdl2-image CONFIG REQUIRED)
 find_package(sdl2-ttf CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(glbinding CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	SDL2::SDL2
@@ -84,10 +89,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	SDL2::SDL2_mixer
     #jsoncpp_object jsoncpp_static JsonCpp::JsonCpp
 	jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp
+    glm::glm
+    glbinding::glbinding glbinding::glbinding-aux
+    OpenGL32
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-	"${PROJECT_SOURCE_DIR}"
+	${PROJECT_SOURCE_DIR}
 	${SDL2_INCLUDE_DIRS}
 	${SDL2IMAGE_INCLUDE_DIRS}
 )

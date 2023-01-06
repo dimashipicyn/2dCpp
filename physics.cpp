@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "physics.h"
 #include "entity.h"
 
@@ -63,9 +65,9 @@ void World::resolve_collision(Body& one, Body& two)
 	Vec2f two_dir = two.get_direction();
 	float two_vel = two.get_velocity();
 	one.set_direction(one_dir.add(two_dir.scalar(two_vel)).normalize());
-	one.set_velocity(one_vel + (two_vel * one_dir.scalar(two_dir)));
+	one.set_velocity((one_vel + (two_vel * one_dir.scalar(two_dir))) * one.elasticity_);
 
-	one.set_position(one.get_position().add(normal.scalar(penetration + 1)));
+	one.set_position(one.get_position().add(normal.scalar(penetration)));
 	one_dir = one.get_direction();
 	if (normal.x) {
 		one.set_direction(Vec2f(-one_dir.x, one_dir.y));
@@ -77,8 +79,10 @@ void World::resolve_collision(Body& one, Body& two)
 	one.has_collision_ = true;
 	one.collisions_.push_back(two.get_owner());
 
-	two.has_collision_ = true;
-	two.collisions_.push_back(one.get_owner());
+	if (two.is_static_) {
+		two.has_collision_ = true;
+		two.collisions_.push_back(one.get_owner());
+	}
 }
 
 void World::process_collision(Body& one, Body& two) {
@@ -282,7 +286,9 @@ Body::Body()
 	, velocity_(0)
 	, acceleration_(0)
 	, mass_(0)
+	, elasticity_(0)
 	, is_active_(false)
+	, is_static_(false)
 	, has_collision_(false)
 {
 
@@ -296,7 +302,9 @@ Body::Body(const AABB& aabb)
 	, velocity_(0)
 	, acceleration_(0)
 	, mass_(0)
+	, elasticity_(0)
 	, is_active_(false)
+	, is_static_(false)
 	, has_collision_(false)
 {
 
@@ -310,7 +318,9 @@ Body::Body(const Circle& circle)
 	, velocity_(0)
 	, acceleration_(0)
 	, mass_(0)
+	, elasticity_(0)
 	, is_active_(false)
+	, is_static_(false)
 	, has_collision_(false)
 {
 
@@ -353,8 +363,16 @@ void Body::set_mass(float mass) {
 	mass_ = mass;
 }
 
+void Body::set_elasticity(float elasticity) {
+	elasticity_ = elasticity;
+}
+
 void Body::set_active(bool active) {
 	is_active_ = active;
+}
+
+void Body::set_static(bool active) {
+	is_static_ = active;
 }
 
 Body::entity_ptr Body::get_owner() const {
@@ -394,8 +412,16 @@ float Body::get_mass() const {
 	return mass_;
 }
 
+float Body::get_elasticity() const {
+	return elasticity_;
+}
+
 bool Body::is_active() const {
 	return is_active_;
+}
+
+bool Body::is_static() const {
+	return is_static_;
 }
 
 } // end of namespace physics

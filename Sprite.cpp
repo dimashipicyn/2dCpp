@@ -5,6 +5,8 @@
 //  Created by Dmitry Shipicyn on 11.09.2022.
 //
 
+#include "stdafx.h"
+
 #include "Sprite.h"
 
 #include "game.h"
@@ -51,6 +53,15 @@ bool Sprite::load(Graphics& graphics, const std::string &file_name) {
 void Sprite::set_scale(float pt) {
     dest_.w *= pt;
     dest_.h *= pt;
+}
+
+int Sprite::get_x() const {
+    return dest_.x;
+}
+
+
+int Sprite::get_y() const {
+    return dest_.y;
 }
 
 int Sprite::get_height() const { 

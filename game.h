@@ -28,9 +28,9 @@ public:
 	Input& get_input();
 	Audio& get_audio();
 
-	int32_t get_tick() const;
-	int32_t get_elapsed() const;
-	int32_t get_lag() const;
+	float get_tick() const;
+	float get_elapsed() const;
+	float get_lag() const;
 	Scene* get_active_scene();
     
     void add_scene(Scene::ptr scene, const std::string& name);
@@ -44,10 +44,9 @@ private:
     int32_t         heigth_ = 0;
     std::string     name_;
     
-    int32_t         tick_time_ = 0;
-	int32_t			lag_ = 0;
-	int32_t			previous_time_ = 0;
-    int32_t     	elapsed_ = 0;
+    float           tick_ = 0;
+    float     	    elapsed_ = 0;
+    float           lag_= 0;
     
     std::map<std::string, Scene::ptr> scenes_;
     Scene* active_scene_;

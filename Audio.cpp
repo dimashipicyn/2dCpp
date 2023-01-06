@@ -5,6 +5,8 @@
 //  Created by Дима Щипицын on 15/11/2022.
 //
 
+#include "stdafx.h"
+
 #include "Audio.hpp"
 
 #include <SDL.h>

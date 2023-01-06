@@ -91,7 +91,9 @@ public:
 	void set_velocity(float vel);
 	void set_acceleration(float acc);
 	void set_mass(float mass);
+	void set_elasticity(float elasticity);
 	void set_active(bool active);
+	void set_static(bool active);
 
 	entity_ptr get_owner() const;
 	vector_collisions get_collisions() const;
@@ -102,7 +104,9 @@ public:
 	float get_velocity() const;
 	float get_acceleration() const;
 	float get_mass() const;
+	float get_elasticity() const;
 	bool is_active() const;
+	bool is_static() const;
 
 private:
     entity_weak_ptr		owner_;
@@ -113,7 +117,9 @@ private:
     float   	        velocity_;
 	float				acceleration_;
 	float				mass_;
+	float				elasticity_;
 	bool            	is_active_;
+	bool				is_static_;
 	bool				has_collision_;
 };
 
@@ -125,16 +131,10 @@ public:
 	World(float gravity);
 	~World();
 
-
     void step(float dt);
 
 	void add_body(Body::ptr body, bool dynamic);
 	void remove_body(Body::ptr body);
-	
-    //bool has_intersection(const AABB& aabb);
-    
-    //Physic_body* create_body(const Physic_body_def& def);
-	//void remove_body(const Physic_body* body);
 
 private:
 	void process_collision(Body& one, Body& two);

@@ -5,6 +5,8 @@
 //  Created by Dmitry Shipicyn on 15.09.2022.
 //
 
+#include "stdafx.h"
+
 #include "log.h"
 #include <iostream>
 

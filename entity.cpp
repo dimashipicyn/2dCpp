@@ -5,6 +5,8 @@
 //  Created by Дима Щипицын on 05/09/2022.
 //
 
+#include "stdafx.h"
+
 #include "entity.h"
 
 Entity::Entity()
