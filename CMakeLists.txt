@@ -40,6 +40,7 @@ set(SOURCE_FILES
     simple_scene.cpp
     Sprite_atlas.cpp
     log.cpp
+	Audio.cpp
 )
 
 set(HEADER_FILES 
@@ -56,6 +57,7 @@ set(HEADER_FILES
     Sprite.h
     Sprite_atlas.hpp
     log.h
+	Audio.hpp
 )
 
 set (CMAKE_CXX_STANDARD 17)
