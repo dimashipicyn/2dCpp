@@ -14,9 +14,15 @@
 #include <windows.h>
 #endif // _MSC_VER
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
 
-#include <gl/GL.h>
-#include <gl/GLU.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 

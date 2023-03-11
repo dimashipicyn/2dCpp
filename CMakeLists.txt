@@ -72,32 +72,35 @@ add_executable(${PROJECT_NAME}
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-image CONFIG REQUIRED)
-find_package(sdl2-ttf CONFIG REQUIRED)
-find_package(sdl2-mixer CONFIG REQUIRED)
+find_package(SDL2_ttf CONFIG REQUIRED)
+find_package(SDL2_mixer CONFIG REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-find_package(glbinding CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
+#find_package(glbinding CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	SDL2::SDL2
 	SDL2::SDL2main
 	#SDL2::SDL2-static
 	SDL2::SDL2_image
-	#SDL2_ttf::SDL2_ttf-static
-	SDL2::SDL2_ttf
-	#SDL2_mixer::SDL2_mixer-static
-	SDL2::SDL2_mixer
-    #jsoncpp_object jsoncpp_static JsonCpp::JsonCpp
-	jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp
+	SDL2_ttf::SDL2_ttf-static
+	#SDL2::SDL2_ttf
+	SDL2_mixer::SDL2_mixer-static
+	#SDL2::SDL2_mixer
+    jsoncpp_object jsoncpp_static JsonCpp::JsonCpp
+	#jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp
     glm::glm
-    glbinding::glbinding glbinding::glbinding-aux
-    OpenGL32
+#    glbinding::glbinding glbinding::glbinding-aux
+#    OpenGL32
+	${OPENGL_LIBRARIES}
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
 	${PROJECT_SOURCE_DIR}
 	${SDL2_INCLUDE_DIRS}
 	${SDL2IMAGE_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIR}
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
