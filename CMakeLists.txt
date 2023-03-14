@@ -25,47 +25,45 @@ else()
     set(VCPKG_PREFIX_CONF_PATH "${VCPKG_PREFIX_PATH}")
 endif()
 
-set(SOURCE_FILES 
-    main.cpp
-    input.cpp
-    graphics.cpp
-    texture.cpp
-    entity.cpp
-    physics.cpp
-    vector.cpp
-    scene.cpp
-    game.cpp
-    Sprite.cpp
-    AnimationSprite.cpp
-    simple_scene.cpp
-    Sprite_atlas.cpp
-    log.cpp
-	Audio.cpp
+set(SOURCE_FILES
+    src/input.cpp
+    src/graphics.cpp
+    src/texture.cpp
+    #src/physics.cpp
+    src/scene.cpp
+    src/game.cpp
+    src/Sprite.cpp
+    src/AnimationSprite.cpp
+    src/Sprite_atlas.cpp
+    src/log.cpp
+	src/Audio.cpp
+    src/Node.cpp
 )
 
 set(HEADER_FILES 
-    input.h
-    graphics.h
-    texture.h
-    entity.h
-    physics.h
-    vector.h
-    AnimationSprite.hpp
-    game.h
-    scene.h
-	fonts.h
-    Sprite.h
-    Sprite_atlas.hpp
-    log.h
-	Audio.hpp
+    include/input.h
+    include/graphics.h
+    include/texture.h
+    #include/physics.h
+    include/AnimationSprite.hpp
+    include/game.h
+    include/scene.h
+	include/fonts.h
+    include/Sprite.h
+    include/Sprite_atlas.hpp
+    include/log.h
+	include/Audio.hpp
+    include/Node.hpp
 )
 
 set (CMAKE_CXX_STANDARD 17)
 
-add_executable(${PROJECT_NAME} 
+add_library(${PROJECT_NAME} SHARED 
     ${SOURCE_FILES}
     ${HEADER_FILES}
 )
+
+#add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 
 # find_library(APPKIT Appkit)
@@ -109,4 +107,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
     ${VCPKG_PREFIX_PATH}/include
+	include
 )
+
+export(TARGETS ${PROJECT_NAME} FILE 2dCppConfig.cmake)
