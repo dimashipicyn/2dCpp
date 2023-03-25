@@ -1,17 +1,18 @@
 #ifndef GRAPHICS_H
 # define GRAPHICS_H
 
-#include "texture.h"
-
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 typedef struct SDL_Window SDL_Window;
 typedef struct SDL_Renderer SDL_Renderer;
 typedef struct SDL_Texture SDL_Texture;
 
 class Graphics;
+class Sprite;
+class Texture;
 
 struct Rect
 {
@@ -52,10 +53,17 @@ struct Color
 	uint8_t a;
 };
 
+#define color_red Color(255,0,0,0)
+#define color_green Color(0,255,0,0)
+#define color_blue Color(0,0,255,0)
+#define rand_color Color(rand()%256,rand()%256,rand()%256,rand()%256)
+
 class Graphics {
 public:
     Graphics(int32_t width, int32_t height, const std::string& title);
     ~Graphics();
+
+	Graphics(const Graphics& gr) = delete;
 
 	bool is_ok();
     
@@ -64,6 +72,10 @@ public:
     
 	void draw_texture(const Texture& texture, const Rect& src, const Rect& dest, const Color& color = Color());
 	void draw_square(const Rect& dest, const Color& color);
+	void draw_pixel(int x, int y, const Color& color);
+	void draw_line(int x1, int y1, int x2, int y2, const Color& color);
+
+	void set_background_color(const Color& color);
     
     int32_t get_width() const;
     int32_t get_height() const;
@@ -73,8 +85,11 @@ private:
     
     SDL_Window*		window_;
 	SDL_Renderer*	renderer_;
+
     int32_t w_;
     int32_t h_;
+
+	Color background_;
 
 	bool ok_;
 };

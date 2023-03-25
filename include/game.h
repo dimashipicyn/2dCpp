@@ -2,13 +2,14 @@
 # define GAME_H
 
 #include "graphics.h"
-#include "scene.h"
 #include "input.h"
 #include "Audio.hpp"
+#include "physics.h"
 
+#include <Node.hpp>
 #include <cstdint>
 #include <string>
-#include <map>
+#include <stack>
 
 struct Config
 {
@@ -27,13 +28,16 @@ public:
     Graphics& get_graphics();
 	Input& get_input();
 	Audio& get_audio();
+	Physics& get_physics();
 
 	float get_tick() const;
 	float get_elapsed() const;
 	float get_lag() const;
-    
-    void add_scene(Scene::ptr scene, const std::string& name);
-    void set_active_scene(const std::string& name);
+
+	void set_fps(float fps);
+
+    void push(const NodePtr& scene);
+    void pop();
     
     void run();
     
@@ -45,15 +49,14 @@ private:
     
     float         	tick_time_ = 0.0f;
 	float			lag_ = 0.0f;
-	float			previous_time_ = 0.0f;
-    float     		elapsed_ = 0.0f;
-    
-    std::map<std::string, Scene::ptr> scenes_;
-    Scene* active_scene_;
+	float			elapsed_ = 0.0f;
+	float			fps = 60.0f;
 
 	Input input_;
     std::unique_ptr<Graphics> graphics_;
 	std::unique_ptr<Audio> audio_;
+	std::unique_ptr<Physics> physics_;
+    std::stack<NodePtr> scenes_;
 };
 
 

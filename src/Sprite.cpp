@@ -19,6 +19,15 @@ Sprite::Sprite()
 {
 }
 
+Sprite::Sprite(const Sprite& s)
+: texture_(s.texture_)
+, src_(s.src_)
+, dest_(s.dest_)
+, scale_(s.scale_)
+{
+
+}
+
 Sprite::Sprite(const Texture& texture)
 : texture_(texture)
 , src_(0,0,texture.get_w(), texture.get_h())
@@ -51,6 +60,16 @@ bool Sprite::load(Graphics& graphics, const std::string &file_name) {
 void Sprite::set_scale(float pt) {
     dest_.w *= pt;
     dest_.h *= pt;
+}
+
+int Sprite::get_x() const
+{
+	return dest_.x;
+}
+
+int Sprite::get_y() const
+{
+	return dest_.y;
 }
 
 int Sprite::get_height() const { 
@@ -89,4 +108,3 @@ void Sprite::set_size(int w, int h) {
 void Sprite::set_color(const Color& color) {
 	color_ = color;
 }
-

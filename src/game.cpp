@@ -1,7 +1,9 @@
 #include "game.h"
 #include "log.h"
+#include "Common.hpp"
 
-#include <chrono>
+#include <Node.hpp>
+#include <glm/common.hpp>
 
 Game::Game()
     : width_(800)
@@ -10,6 +12,8 @@ Game::Game()
     , tick_time_(1 / 60.0f)
 {
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
+	audio_ = std::make_unique<Audio>();
+	physics_ = std::make_unique<Physics>(1.0f);
 }
 
 Game::Game(const Config &config)
@@ -20,6 +24,7 @@ Game::Game(const Config &config)
 {
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
 	audio_ = std::make_unique<Audio>();
+	physics_ = std::make_unique<Physics>(1.0f);
 }
 
 Game::~Game()
@@ -27,71 +32,64 @@ Game::~Game()
     
 }
 
-struct Chrono
-{
-	Chrono() {
-		last_time = std::chrono::steady_clock::now();
-	}
-
-	float reset() {
-		auto now = std::chrono::steady_clock::now();
-		std::chrono::duration<double> diff = now - last_time;
-		last_time = now;
-		return diff.count();
-	}
-
-	std::chrono::time_point<std::chrono::steady_clock> last_time;
-};
-
 void Game::run()
 {
 	if (!graphics_->is_ok()) {
 		return;
 	}
 
-	if (!active_scene_) {
+	if (scenes_.empty()) {
 		LOG_ERROR("Dont have scenes!");
         return;
-	}
-
-    active_scene_->start_internal(*this);
+    }
 
 	Chrono chr;
-
-	previous_time_ = chr.reset();
+	elapsed_ = chr.reset();
     
     bool quit = false;
     while (!quit)
     {
+        graphics_->clear_frame();
+
 		input_.handle();
-        
         quit = input_.get_button(Input::Quit) != 0;
 
-		elapsed_ = chr.reset();
         lag_ += elapsed_;
-        
-		while (lag_ >= (tick_time_ / 2)) {
-			active_scene_->update_internal(*this);
+
+        if (scenes_.empty()) {
+            LOG_ERROR("Dont have scenes!");
+            return;
+        }
+
+        NodePtr current_scene = scenes_.top();
+
+        while (lag_ >= tick_time_) {
+            current_scene->update_internal(*this);
+            physics_->step(tick_time_);
+            current_scene->sync_physic();
+
             lag_ -= tick_time_;
         }
 
-		graphics_->clear_frame();
-		active_scene_->render_internal(*this);
+		current_scene->render_internal(*this);
         graphics_->render_frame();
+
+        current_scene->deinit_internal(*this);
+
+		elapsed_ = chr.reset();
     }
 }
 
-void Game::set_active_scene(const std::string &name) { 
-    auto found = scenes_.find(name);
-    if (found != scenes_.end()) {
-        active_scene_ = found->second.get();
-    }
-    //active_scene_->start(*this);
+void Game::push(const NodePtr& scene)
+{
+    scene->init_internal(*this);
+    scenes_.push(scene);
 }
 
-
-void Game::add_scene(Scene::ptr scene, const std::string& name) {
-    scenes_.emplace(name, std::move(scene));
+void Game::pop()
+{
+    scenes_.top()->deinit_internal(*this);
+    scenes_.pop();
 }
 
 Graphics &Game::get_graphics() { 
@@ -100,6 +98,14 @@ Graphics &Game::get_graphics() {
 
 Input &Game::get_input() { 
 	return input_;
+}
+
+Audio &Game::get_audio() {
+	return *audio_;
+}
+
+Physics &Game::get_physics() {
+	return *physics_;
 }
 
 float Game::get_elapsed() const {
@@ -115,7 +121,6 @@ float Game::get_lag() const {
 	return lag_;
 }
 
-
-Audio &Game::get_audio() {
-	return *audio_;
+void Game::set_fps(float fps) {
+	fps = glm::clamp(fps, 30.0f, 120.0f);
 }

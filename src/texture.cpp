@@ -21,6 +21,14 @@ Texture::~Texture()
 {
 }
 
+Texture::Texture(const Texture& texture)
+	: texture_(texture.texture_)
+	, w_(texture.w_)
+	, h_(texture.h_)
+{
+
+}
+
 bool Texture::load(Graphics& graphics, const std::string &file_name)
 {
     std::unique_ptr<SDL_Surface, void(*)(SDL_Surface*)> image{IMG_Load(file_name.c_str()), SDL_FreeSurface};

@@ -16,6 +16,7 @@ class Sprite
 {
 public:
     Sprite();
+	Sprite(const Sprite& s);
 	Sprite(const Texture& texture);
     Sprite(const Texture& texture, const Rect& src, const Rect& dest);
     ~Sprite() noexcept;
@@ -37,6 +38,8 @@ public:
 	bool is_intersect(const Sprite& other);
     
     void draw(Graphics& graphics);
+
+	friend class Graphics;
     
 protected:
     Texture texture_;

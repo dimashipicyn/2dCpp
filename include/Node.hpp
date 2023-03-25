@@ -8,19 +8,16 @@
 #ifndef Node_hpp
 #define Node_hpp
 
+#include "Common.hpp"
+#include "physics.h"
+
 #include <vector>
 #include <glm/vec2.hpp>
 
 class Game;
 class NodeBase;
 
-using NodePtr = std::shared_ptr<NodeBase>;
-
-template<class T>
-using Ptr = std::shared_ptr<T>;
-
-template<class T>
-auto CreatePtr = std::make_shared<T>;
+using NodePtr = Ptr<NodeBase>;
 
 class NodeBase
 {
@@ -29,6 +26,7 @@ public:
 	virtual void init(Game& game);
 	virtual void update(Game& game);
 	virtual void render(Game& game);
+	virtual void deinit(Game& game);
 
 	glm::vec2 get_position() const;
 	glm::vec2 get_direction() const;
@@ -44,19 +42,35 @@ public:
 	bool is_deleted() const;
 	void delete_node();
 
+	int num_childs() const;
+	NodePtr get_children(int index);
+
+	Body* get_body() const;
+	void set_body(Body* body);
+
+protected:
+	glm::vec2 prev_pos;
+
 private:
 	friend class Scene;
+	friend class Game;
 
 	void init_internal(Game& game);
 	void update_internal(Game& game);
 	void render_internal(Game& game);
+	void deinit_internal(Game& game);
+	void sync_physic();
 
 private:
 	glm::vec2 pos;
 	glm::vec2 dir;
 
-	NodeBase* parent;
+	Body* body = nullptr;
+	NodeBase* parent = nullptr;
+	
 	std::vector<NodePtr> childrens;
+	std::vector<NodePtr> added_childrens;
+	
 	bool deleted = false;
 };
 

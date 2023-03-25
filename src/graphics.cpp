@@ -1,6 +1,9 @@
 #include "graphics.h"
 #include "log.h"
+#include "Sprite.h"
+#include "texture.h"
 
+#include <SDL_render.h>
 #include <math.h>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -11,6 +14,7 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
     , renderer_(nullptr)
     , w_(width)
     , h_(height)
+	, background_(Color(0,0,0,0))
 	, ok_(true)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -98,5 +102,25 @@ void Graphics::draw_square(const Rect &dest, const Color &color) {
 	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
 	SDL_Rect dst{dest.x, dest.y, dest.w, dest.h};
 	SDL_RenderFillRect(renderer_, &dst);
-	SDL_SetRenderDrawColor(renderer_, 0x0, 0x0, 0x0, 0x0);
+	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
 }
+
+void Graphics::draw_pixel(int x, int y, const Color& color)
+{
+	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
+	SDL_RenderDrawPoint(renderer_, x, y);
+	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
+}
+
+void Graphics::set_background_color(const Color& color)
+{
+	background_ = color;
+}
+
+void Graphics::draw_line(int x1, int y1, int x2, int y2, const Color& color)
+{
+	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
+	SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
+}
+

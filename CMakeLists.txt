@@ -6,8 +6,10 @@ endif()
 
 cmake_minimum_required(VERSION 3.0.0)
 project(2dCpp)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-Wall -Wextra -pedantic -fsanitize=address)
+add_link_options(-fsanitize=address)
 
 if (WIN32)
     set(VCPKG_SYSARCH "x64-windows")
@@ -29,8 +31,7 @@ set(SOURCE_FILES
     src/input.cpp
     src/graphics.cpp
     src/texture.cpp
-    #src/physics.cpp
-    src/scene.cpp
+    src/physics.cpp
     src/game.cpp
     src/Sprite.cpp
     src/AnimationSprite.cpp
@@ -38,22 +39,25 @@ set(SOURCE_FILES
     src/log.cpp
 	src/Audio.cpp
     src/Node.cpp
+    src/SpriteNode.cpp
+	src/Common.cpp
 )
 
 set(HEADER_FILES 
     include/input.h
     include/graphics.h
     include/texture.h
-    #include/physics.h
+    include/physics.h
     include/AnimationSprite.hpp
     include/game.h
-    include/scene.h
 	include/fonts.h
     include/Sprite.h
     include/Sprite_atlas.hpp
     include/log.h
 	include/Audio.hpp
     include/Node.hpp
+    include/SpriteNode.hpp
+	include/Common.hpp
 )
 
 set (CMAKE_CXX_STANDARD 17)

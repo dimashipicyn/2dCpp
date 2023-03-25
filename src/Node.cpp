@@ -6,7 +6,9 @@
 //
 
 #include "Node.hpp"
+#include "game.h"
 
+#include <algorithm>
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
@@ -14,15 +16,19 @@ NodeBase::~NodeBase() {
 	
 }
 
-void NodeBase::init(Game& game) {
+void NodeBase::init(Game&) {
 
 }
 
-void NodeBase::update(Game& game) {
+void NodeBase::update(Game&) {
 
 }
 
-void NodeBase::render(Game& game) {
+void NodeBase::render(Game&) {
+
+}
+
+void NodeBase::deinit(Game&) {
 
 }
 
@@ -36,14 +42,30 @@ glm::vec2 NodeBase::get_direction() const {
 
 void NodeBase::set_position(glm::vec2 pos) {
 	this->pos = pos;
+
+	if (body)
+	{
+		body->set_position(pos);
+	}
 }
 
 void NodeBase::set_direction(glm::vec2 dir) {
 	this->dir = glm::normalize(dir);
+
+	if (body)
+	{
+		body->set_direction(dir);
+	}
 }
 
 void NodeBase::translate(float num) {
+	prev_pos = pos;
 	pos = pos + (dir * num);
+
+	if (body)
+	{
+		body->set_position(pos);
+	}
 }
 
 void NodeBase::rotate(float angle) {
@@ -66,11 +88,11 @@ void NodeBase::init_internal(Game &game) {
 }
 
 void NodeBase::update_internal(Game& game) {
+	prev_pos = pos;
 	update(game);
 	for (auto& c : childrens) {
 		c->update_internal(game);
 	}
-
 }
 
 void NodeBase::render_internal(Game &game) {
@@ -78,10 +100,67 @@ void NodeBase::render_internal(Game &game) {
 	for (auto& c : childrens) {
 		c->render_internal(game);
 	}
+
+	std::for_each(added_childrens.begin(), added_childrens.end(), [&game](NodePtr& n) {
+		n->init(game);
+	});
+
+	std::copy(added_childrens.begin(), added_childrens.end(), std::back_inserter(childrens));
+	added_childrens.clear();
 }
 
 void NodeBase::add_node(const NodePtr &node) {
-	childrens.emplace_back(node);
-	childrens.back()->parent = this;
+	added_childrens.emplace_back(std::move(node));
+	added_childrens.back()->parent = this;
 }
 
+int NodeBase::num_childs() const
+{
+	return childrens.size();
+}
+
+NodePtr NodeBase::get_children(int index)
+{
+	return childrens[index];
+}
+
+Body* NodeBase::get_body() const
+{
+	return body;
+}
+
+void NodeBase::set_body(Body* body)
+{
+	this->body = body;
+	pos = body->get_position();
+	dir = body->get_direction();
+}
+
+void NodeBase::deinit_internal(Game& game)
+{
+	for (auto& n : childrens) {
+		n->deinit_internal(game);
+	}
+
+	childrens.erase(std::remove_if(childrens.begin(), childrens.end(), [](auto& n) {
+		return n->is_deleted();
+	}), childrens.end());
+	
+	if (is_deleted() && body)
+	{
+		game.get_physics().remove(body);
+	}
+}
+
+
+void NodeBase::sync_physic()
+{
+	if (body)
+	{
+		pos = body->get_position();
+		dir = body->get_direction();
+	}
+	for (auto& c : childrens) {
+		c->sync_physic();
+	}
+}

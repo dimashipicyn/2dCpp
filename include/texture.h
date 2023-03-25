@@ -15,6 +15,8 @@ public:
 	Texture();
 	~Texture();
 
+	Texture(const Texture& texture);
+
 	bool load(Graphics& graphics, const std::string& file_name);
     
     int32_t get_w() const;

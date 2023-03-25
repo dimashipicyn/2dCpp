@@ -1,12 +1,15 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
+#include "Common.hpp"
+
 #include <glm/vec2.hpp>
 
 #include <vector>
 #include <memory>
+#include <functional>
 
-namespace physics {
+//namespace physics {
 
 enum class ColliderType
 {
@@ -38,8 +41,8 @@ public:
 	~Collider();
 
 	bool has_intersection(const Collider& other) const;
-	 get_position() const;
-	void set_position(const Vec2f& pos);
+	glm::vec2 get_position() const;
+	void set_position(const glm::vec2& pos);
 
 	const AABB& get_aabb() const;
 	const Circle& get_circle() const;
@@ -56,95 +59,84 @@ private:
 	};
 };
 
-enum class Layer : int {
-	LAYER_0 = 0,
-	LAYER_1 = 1,
-	LAYER_2 = 2,
-	LAYER_3 = 4
+enum BitMask
+{
+	BIT_0  = 1 << 0,
+	BIT_1  = 1 << 1,
+	BIT_2  = 1 << 2,
+	BIT_3  = 1 << 3,
+	BIT_4  = 1 << 4,
+	BIT_5  = 1 << 5,
+	BIT_6  = 1 << 6,
+	BIT_7  = 1 << 7,
 };
 
-class World;
+class Body;
+using BodyPtr = Ptr<Body>;
+
+using OnCollisionCallback = std::function<void(const Body& one, const Body& two)>;
 
 class Body
 {
 public:
-	using ptr = std::shared_ptr<Body>;
-	using entity_ptr = std::shared_ptr<Entity>;
-	using entity_weak_ptr = std::weak_ptr<Entity>;
-	using vector_collisions = std::vector<entity_weak_ptr>;
-
-	friend class World;
+	friend class Physics;
 
 	Body();
 	Body(const AABB& aabb);
 	Body(const Circle& circle);
 	~Body();
 
-	bool has_collision() const;
-
-	void set_owner(entity_ptr owner);
-	void set_position(const Vec2f& pos);
-	void set_direction(const Vec2f& dir);
-	void set_layer(Layer layer);
+	void set_position(const glm::vec2& pos);
+	void set_direction(const glm::vec2& dir);
+	void set_bit_mask(BitMask bit);
 	void set_velocity(float vel);
-	void set_acceleration(float acc);
 	void set_mass(float mass);
-	void set_active(bool active);
+	void set_enable(bool enable);
 
-	entity_ptr get_owner() const;
-	vector_collisions get_collisions() const;
+	void on_collision(OnCollisionCallback callback);
+
+	BitMask get_bit_mask() const;
 	Collider get_collider() const;
-	Vec2f get_position() const;
-	Vec2f get_direction() const;
-	Layer get_layer() const;
+	glm::vec2 get_position() const;
+	glm::vec2 get_direction() const;
 	float get_velocity() const;
-	float get_acceleration() const;
 	float get_mass() const;
-	bool is_active() const;
+
+	bool is_enabled() const;
 
 private:
-    entity_weak_ptr		owner_;
-	vector_collisions	collisions_;
+	OnCollisionCallback	callback_;
 	Collider			collider_;
-	Vec2f           	direction_;
-	Layer				layer_;
+	glm::vec2			position_;
+	glm::vec2           direction_;
+	BitMask				bitmask_;
     float   	        velocity_;
-	float				acceleration_;
 	float				mass_;
-	bool            	is_active_;
-	bool				has_collision_;
+	bool            	is_enabled_;
 };
 
-class World
+class Physics
 {
 public:
-	using ptr = std::unique_ptr<World>;
-	
-	World(float gravity);
-	~World();
-
+	Physics(float gravity);
+	~Physics();
 
     void step(float dt);
 
-	void add_body(Body::ptr body, bool dynamic);
-	void remove_body(Body::ptr body);
-	
-    //bool has_intersection(const AABB& aabb);
-    
-    //Physic_body* create_body(const Physic_body_def& def);
-	//void remove_body(const Physic_body* body);
+	Body* create(const AABB& aabb, bool dynamic = false);
+	Body* create(const Circle& circle, bool dynamic = false);
+	void remove(const Body* body);
 
 private:
 	void process_collision(Body& one, Body& two);
 	void resolve_collision(Body& one, Body& two);
-
     
 private:
-    std::vector<Body::ptr> static_body_;
-    std::vector<Body::ptr> dynamic_body_;
+    std::vector<BodyPtr> static_body_;
+    std::vector<BodyPtr> dynamic_body_;
 	float gravity_;
 };
 
-}
+//}
 
 #endif
