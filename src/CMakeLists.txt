@@ -1,16 +1,19 @@
 
 set(SOURCE_FILES 
-    input.cpp
-    graphics.cpp
-    texture.cpp
-    physics.cpp
-    game.cpp
-    Sprite.cpp
     AnimationSprite.cpp
-    Sprite_atlas.cpp
-    log.cpp
     Audio.cpp
+    Common.cpp
+    Font.cpp
+    game.cpp
+    graphics.cpp
+    input.cpp
+    log.cpp
     Node.cpp
+    physics.cpp
+    Sprite_atlas.cpp
+    Sprite.cpp
+    texture.cpp
+    Widgets.cpp
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})

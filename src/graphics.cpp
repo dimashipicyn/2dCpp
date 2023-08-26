@@ -1,14 +1,15 @@
 #include "graphics.h"
-#include "SDL3/SDL_video.h"
 #include "log.h"
 #include "Sprite.h"
 #include "texture.h"
+#include "Font.h"
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_render.h>
-#include <SDL3_image/SDL_image.h>
-#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL_rect.h>
+#include <SDL_render.h>
 #include <math.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 
 Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
     : window_(nullptr)
@@ -37,9 +38,9 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
         LOG_ERROR(std::string{"SDL_ttf could not initialize! SDL_ttf Error: "} + TTF_GetError());
     }
     
-    window_ = SDL_CreateWindow(title.c_str(), width, height, 0);
+    window_ = SDL_CreateWindow(title.c_str(),width, height, 0);
     
-    renderer_ = SDL_CreateRenderer(window_, title.c_str(), SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    renderer_ = SDL_CreateRenderer(window_, nullptr, 0);
 
 	if (!window_ || !renderer_) {
 		ok_ = false;
@@ -80,29 +81,43 @@ bool Graphics::is_ok() {
 	return ok_;
 }
 
-void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect &dest, const Color& color) {
-	SDL_FRect s{(float)src.x, (float)src.y, (float)src.w, (float)src.h};
-	SDL_FRect d{(float)dest.x, (float)dest.y, (float)dest.w, (float)dest.h};
-	SDL_SetTextureColorMod(texture.texture_.get(), color.r, color.g, color.b);
-	SDL_RenderTexture(renderer_, texture.texture_.get(), &s, &d);
-	SDL_SetTextureColorMod(texture.texture_.get(), 255, 255, 255);
+void Graphics::set_background_color(const Color& color)
+{
+	background_ = color;
 }
-
-
-int32_t Graphics::get_height() const {
-    return h_;
-}
-
 
 int32_t Graphics::get_width() const { 
     return w_;
 }
 
+int32_t Graphics::get_height() const {
+    return h_;
+}
 
-void Graphics::draw_square(const Rect &dest, const Color &color) { 
+void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect &dest, const Color& color) {
+	SDL_FRect s{(float)src.x, (float)src.y, (float)src.w, (float)src.h};
+	SDL_FRect d{(float)dest.x, (float)dest.y, (float)dest.w, (float)dest.h};
+
+	Color saved_color;
+	SDL_GetTextureColorMod(texture.texture_.get(), &saved_color.r, &saved_color.g, &saved_color.b);
+
+	SDL_SetTextureColorMod(texture.texture_.get(), color.r, color.g, color.b);
+	SDL_RenderTexture(renderer_, texture.texture_.get(), &s, &d);
+	SDL_SetTextureColorMod(texture.texture_.get(), saved_color.r, saved_color.g, saved_color.b);
+}
+
+void Graphics::draw_rect(const Rect &dest, const Color &color) { 
 	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
 	SDL_FRect dst{(float)dest.x, (float)dest.y, (float)dest.w, (float)dest.h};
 	SDL_RenderFillRect(renderer_, &dst);
+	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
+}
+
+void Graphics::draw_outline_rect(const Rect& dest, const Color& color)
+{
+	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
+	SDL_FRect dst{(float)dest.x, (float)dest.y, (float)dest.w, (float)dest.h};
+	SDL_RenderRect(renderer_, &dst);
 	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
 }
 
@@ -113,11 +128,6 @@ void Graphics::draw_pixel(int x, int y, const Color& color)
 	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
 }
 
-void Graphics::set_background_color(const Color& color)
-{
-	background_ = color;
-}
-
 void Graphics::draw_line(int x1, int y1, int x2, int y2, const Color& color)
 {
 	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
@@ -125,3 +135,26 @@ void Graphics::draw_line(int x1, int y1, int x2, int y2, const Color& color)
 	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
 }
 
+void Graphics::draw_char(const Font& font, int x, int y, char c, const Color& color)
+{
+	Font::Glyph gl = font.get_glyph(c);
+	SDL_FRect src = {(float)gl.src.x, (float)gl.src.y, (float)gl.src.w, (float)gl.src.h};
+	SDL_FRect dest = {(float)x, (float)y, (float)src.w, (float)src.h};
+
+	Color saved_color;
+	SDL_GetTextureColorMod(gl.texture, &saved_color.r, &saved_color.g, &saved_color.b);
+	
+	SDL_SetTextureColorMod(gl.texture, color.r, color.g, color.b);
+	SDL_RenderTexture(renderer_, gl.texture, &src, &dest);
+	SDL_SetTextureColorMod(gl.texture, saved_color.r, saved_color.g, saved_color.b);
+}
+
+void Graphics::draw_str(const Font& font, int x, int y, const char* str, const Color& color)
+{
+	for (const char* c = str; *c != '\0'; c++)
+	{
+		draw_char(font, x, y, *c, color);
+		Font::Glyph gl = font.get_glyph(*c);
+		x+= gl.src.w;
+	}
+}

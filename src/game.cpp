@@ -3,6 +3,7 @@
 #include "Common.hpp"
 
 #include <Node.hpp>
+#include <cassert>
 #include <glm/common.hpp>
 
 Game::Game()
@@ -46,13 +47,12 @@ void Game::run()
 	Chrono chr;
 	elapsed_ = chr.reset();
     
-    bool quit = false;
-    while (!quit)
+    while (!quit_)
     {
         graphics_->clear_frame();
 
 		input_.handle();
-        quit = input_.get_button(Input::Quit) != 0;
+        quit_ = input_.get_button(Input::Quit) != 0;
 
         lag_ += elapsed_;
 
@@ -72,6 +72,7 @@ void Game::run()
         }
 
 		current_scene->render_internal(*this);
+
         graphics_->render_frame();
 
         current_scene->deinit_internal(*this);
@@ -80,7 +81,12 @@ void Game::run()
     }
 }
 
-void Game::push(const NodePtr& scene)
+void Game::stop()
+{
+    quit_ = true;
+}
+
+void Game::push(NodePtr scene)
 {
     scene->init_internal(*this);
     scenes_.push(scene);

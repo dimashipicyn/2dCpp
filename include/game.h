@@ -5,11 +5,15 @@
 #include "input.h"
 #include "Audio.hpp"
 #include "physics.h"
-
+#include "Widgets.h"
+#include "Font.h"
 #include <Node.hpp>
+
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <stack>
+#include <vector>
 
 struct Config
 {
@@ -36,10 +40,11 @@ public:
 
 	void set_fps(float fps);
 
-    void push(const NodePtr& scene);
+    void push(NodePtr scene);
     void pop();
-    
+
     void run();
+    void stop();
     
 private:
 	
@@ -57,6 +62,8 @@ private:
 	std::unique_ptr<Audio> audio_;
 	std::unique_ptr<Physics> physics_;
     std::stack<NodePtr> scenes_;
+
+    bool quit_ = false;
 };
 
 

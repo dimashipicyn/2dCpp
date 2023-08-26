@@ -82,6 +82,10 @@ void NodeBase::delete_node() {
 
 void NodeBase::init_internal(Game &game) {
 	init(game);
+
+	std::copy(added_childrens.begin(), added_childrens.end(), std::back_inserter(childrens));
+	added_childrens.clear();
+
 	for (auto& c : childrens) {
 		c->init_internal(game);
 	}
@@ -102,7 +106,7 @@ void NodeBase::render_internal(Game &game) {
 	}
 
 	std::for_each(added_childrens.begin(), added_childrens.end(), [&game](NodePtr& n) {
-		n->init(game);
+		n->init_internal(game);
 	});
 
 	std::copy(added_childrens.begin(), added_childrens.end(), std::back_inserter(childrens));

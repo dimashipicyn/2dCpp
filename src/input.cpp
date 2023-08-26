@@ -7,7 +7,7 @@
 
 #include "input.h"
 
-#include <SDL3/SDL.h>
+#include <SDL.h>
 
 void Input::handle() {
 
@@ -41,51 +41,19 @@ void Input::handle() {
 					buttons_[MouseMiddle] += 1;
 				}
 				break;
-//			case SDL_KEYDOWN: {
-//				switch (event.key.keysym.sym) {
-//
-//					case SDLK_ESCAPE:
-//						buttons_[Quit] += 1;
-//						break;
-//					case SDLK_w:
-//					case SDLK_UP:
-//						vertical_axis_ += 1;
-//						break;
-//					case SDLK_s:
-//					case SDLK_DOWN:
-//						vertical_axis_ -= 1;
-//						break;
-//					case SDLK_a:
-//					case SDLK_LEFT:
-//						horizontal_axis_ -= 1;
-//						break;
-//					case SDLK_d:
-//					case SDLK_RIGHT:
-//						horizontal_axis_ += 1;
-//						break;
-//					case SDLK_LCTRL:
-//					case SDLK_RCTRL:
-//						buttons_[Fire1] += 1;
-//						break;
-//					case SDLK_LALT:
-//					case SDLK_RALT:
-//						buttons_[Fire2] += 1;
-//						break;
-//				}
-//			}
 		}
 	}
-	auto keyStates = SDL_GetKeyboardState(NULL);
-	if (keyStates[SDL_SCANCODE_D]) {
+	auto keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_SCANCODE_D]) {
 		horizontal_axis_ += 1;
 	}
-	if (keyStates[SDL_SCANCODE_A]) {
+	if (keys[SDL_SCANCODE_A]) {
 		horizontal_axis_ -= 1;
 	}
-	if (keyStates[SDL_SCANCODE_W]) {
+	if (keys[SDL_SCANCODE_W]) {
 		vertical_axis_ += 1;
 	}
-	if (keyStates[SDL_SCANCODE_S]) {
+	if (keys[SDL_SCANCODE_S]) {
 		vertical_axis_ -= 1;
 	}
 }

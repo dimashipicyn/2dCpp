@@ -1,16 +1,20 @@
 
 set(HEADER_FILES 
-    input.h
-    graphics.h
-    texture.h
-    physics.h
     AnimationSprite.hpp
-    game.h
-    fonts.h
-    Sprite.h
-    Sprite_atlas.hpp
-    log.h
     Audio.hpp
+    Common.hpp
+    Font.h
+    game.h
+    graphics.h
+    input.h
+    log.h
+    Node.hpp
+    physics.h
+    Sprite_atlas.hpp
+    Sprite.h
+    SpriteNode.hpp
+    texture.h
+    Widgets.h
 )
 
 target_sources(${PROJECT_NAME} PUBLIC ${HEADER_FILES})

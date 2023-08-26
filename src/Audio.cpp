@@ -7,9 +7,8 @@
 
 #include "Audio.hpp"
 
-#include <SDL3/SDL.h>
+#include <SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
-
 #include <cassert>
 
 Audio::Audio() {

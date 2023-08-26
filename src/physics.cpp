@@ -1,7 +1,7 @@
 #include "physics.h"
 
 #include <cstdlib>
-#include <SDL3/SDL.h>
+#include <SDL.h>
 #include <cassert>
 #include <cmath>
 
