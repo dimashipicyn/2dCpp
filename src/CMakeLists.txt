@@ -12,6 +12,7 @@ set(SOURCE_FILES
     physics.cpp
     Sprite_atlas.cpp
     Sprite.cpp
+    SpriteNode.cpp
     texture.cpp
     Widgets.cpp
 )
