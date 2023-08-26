@@ -1,13 +1,14 @@
 #include "graphics.h"
+#include "SDL3/SDL_video.h"
 #include "log.h"
 #include "Sprite.h"
 #include "texture.h"
 
-#include <SDL_render.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <math.h>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 
 Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
     : window_(nullptr)
@@ -36,9 +37,9 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
         LOG_ERROR(std::string{"SDL_ttf could not initialize! SDL_ttf Error: "} + TTF_GetError());
     }
     
-    window_ = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+    window_ = SDL_CreateWindow(title.c_str(), width, height, 0);
     
-    renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    renderer_ = SDL_CreateRenderer(window_, title.c_str(), SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	if (!window_ || !renderer_) {
 		ok_ = false;
@@ -80,10 +81,10 @@ bool Graphics::is_ok() {
 }
 
 void Graphics::draw_texture(const Texture &texture, const Rect &src, const Rect &dest, const Color& color) {
-	SDL_Rect s{src.x, src.y, src.w, src.h};
-	SDL_Rect d{dest.x, dest.y, dest.w, dest.h};
+	SDL_FRect s{(float)src.x, (float)src.y, (float)src.w, (float)src.h};
+	SDL_FRect d{(float)dest.x, (float)dest.y, (float)dest.w, (float)dest.h};
 	SDL_SetTextureColorMod(texture.texture_.get(), color.r, color.g, color.b);
-	SDL_RenderCopy(renderer_, texture.texture_.get(), &s, &d);
+	SDL_RenderTexture(renderer_, texture.texture_.get(), &s, &d);
 	SDL_SetTextureColorMod(texture.texture_.get(), 255, 255, 255);
 }
 
@@ -100,7 +101,7 @@ int32_t Graphics::get_width() const {
 
 void Graphics::draw_square(const Rect &dest, const Color &color) { 
 	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
-	SDL_Rect dst{dest.x, dest.y, dest.w, dest.h};
+	SDL_FRect dst{(float)dest.x, (float)dest.y, (float)dest.w, (float)dest.h};
 	SDL_RenderFillRect(renderer_, &dst);
 	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
 }
@@ -108,7 +109,7 @@ void Graphics::draw_square(const Rect &dest, const Color &color) {
 void Graphics::draw_pixel(int x, int y, const Color& color)
 {
 	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
-	SDL_RenderDrawPoint(renderer_, x, y);
+	SDL_RenderPoint(renderer_, x, y);
 	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
 }
 
@@ -120,7 +121,7 @@ void Graphics::set_background_color(const Color& color)
 void Graphics::draw_line(int x1, int y1, int x2, int y2, const Color& color)
 {
 	SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
-	SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+	SDL_RenderLine(renderer_, x1, y1, x2, y2);
 	SDL_SetRenderDrawColor(renderer_, background_.r, background_.g, background_.b, background_.a);
 }
 

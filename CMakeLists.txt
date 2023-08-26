@@ -1,117 +1,28 @@
-set(VCPKG_ROOT_DIR "$ENV{VCPKG_ROOT}" CACHE PATH "VCPKG_ROOT_DIR")
+cmake_minimum_required(VERSION 3.24)
+project(2dCpp VERSION 0.1.0 LANGUAGES C CXX)
 
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT_DIR}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-endif()
+add_subdirectory(third_party)
 
-cmake_minimum_required(VERSION 3.0.0)
-project(2dCpp)
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+add_library(${PROJECT_NAME})
 
-add_compile_options(-Wall -Wextra -pedantic -fsanitize=address)
-add_link_options(-fsanitize=address)
-
-if (WIN32)
-    set(VCPKG_SYSARCH "x64-windows")
-elseif(APPLE)
-    set(VCPKG_SYSARCH "x64-osx")
-else()
-    set(VCPKG_SYSARCH "x64-linux")
-endif()
-
-set(VCPKG_PREFIX_PATH "${VCPKG_ROOT_DIR}/installed/${VCPKG_SYSARCH}")
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(VCPKG_PREFIX_CONF_PATH "${VCPKG_PREFIX_PATH}/debug")
-else()
-    set(VCPKG_PREFIX_CONF_PATH "${VCPKG_PREFIX_PATH}")
-endif()
-
-set(SOURCE_FILES
-    src/input.cpp
-    src/graphics.cpp
-    src/texture.cpp
-    src/physics.cpp
-    src/game.cpp
-    src/Sprite.cpp
-    src/AnimationSprite.cpp
-    src/Sprite_atlas.cpp
-    src/log.cpp
-	src/Audio.cpp
-    src/Node.cpp
-    src/SpriteNode.cpp
-	src/Common.cpp
-)
-
-set(HEADER_FILES 
-    include/input.h
-    include/graphics.h
-    include/texture.h
-    include/physics.h
-    include/AnimationSprite.hpp
-    include/game.h
-	include/fonts.h
-    include/Sprite.h
-    include/Sprite_atlas.hpp
-    include/log.h
-	include/Audio.hpp
-    include/Node.hpp
-    include/SpriteNode.hpp
-	include/Common.hpp
-)
-
-set (CMAKE_CXX_STANDARD 17)
-
-add_library(${PROJECT_NAME} SHARED 
-    ${SOURCE_FILES}
-    ${HEADER_FILES}
-)
-
-#add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-
-# find_library(APPKIT Appkit)
-# if (NOT APPKIT)
-#     message(FATAL_ERROR "Appkit not found")
-# endif()
-
-# find_library(OPENGL OpenGL)
-# if (NOT OPENGL)
-#     message(FATAL_ERROR "OpenGL not found")
-# endif()
-
-# add_subdirectory(utils)
-
-find_package(SDL2 CONFIG REQUIRED)
-find_package(sdl2-image CONFIG REQUIRED)
-find_package(SDL2_ttf CONFIG REQUIRED)
-find_package(SDL2_mixer CONFIG REQUIRED)
-
-find_package(jsoncpp CONFIG REQUIRED)
+add_subdirectory(include)
+add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    # utils
-    # "-framework Appkit"
-    # "-framework OpenGL"
-	SDL2::SDL2
-	SDL2::SDL2main
-	SDL2::SDL2-static
-	SDL2::SDL2_image
-	SDL2_ttf::SDL2_ttf-static
-	SDL2_mixer::SDL2_mixer-static
-    jsoncpp_object jsoncpp_static JsonCpp::JsonCpp
+    SDL3::SDL3
+	SDL3_image::SDL3_image
+    SDL3_ttf::SDL3_ttf
+	SDL3_mixer::SDL3_mixer
+    jsoncpp_lib
+    glm
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-	"${PROJECT_SOURCE_DIR}"
-    # "${PROJECT_SOURCE_DIR}/utils"
-	${SDL2_INCLUDE_DIRS}
-	${SDL2IMAGE_INCLUDE_DIRS}
-)
-
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
-    ${VCPKG_PREFIX_PATH}/include
 	include
+    third_party/SDL/include
+    third_party/SDL_image/include
+    third_party/SDL_mixer/include
+    third_party/SDL_ttf/include
+	third_party/glm
+    third_party/jsoncpp/include
 )
-
-export(TARGETS ${PROJECT_NAME} FILE 2dCppConfig.cmake)

@@ -7,17 +7,18 @@
 
 #include "Audio.hpp"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
+
 #include <cassert>
 
 Audio::Audio() {
 	if(SDL_Init(SDL_INIT_AUDIO) < 0) {
 		return;
 	}
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-		return;
-	}
+	// if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+	// 	return;
+	// }
 	isInitialize_ = true;
 }
 

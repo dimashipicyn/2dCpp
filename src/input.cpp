@@ -7,7 +7,7 @@
 
 #include "input.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 void Input::handle() {
 
@@ -23,14 +23,14 @@ void Input::handle() {
 	while (SDL_PollEvent(&event)) {
 		switch (event.type)
 		{
-			case SDL_QUIT:
+			case SDL_EVENT_QUIT:
 				buttons_[Quit] += 1;
 				break;
-			case SDL_MOUSEMOTION:
+			case SDL_EVENT_MOUSE_MOTION:
 				mouse_position_.x = event.motion.x;
 				mouse_position_.y = event.motion.y;
 				break;
-			case SDL_MOUSEBUTTONUP:
+			case SDL_EVENT_MOUSE_BUTTON_UP:
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					buttons_[MouseLeft] += 1;
 				}
