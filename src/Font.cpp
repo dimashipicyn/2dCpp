@@ -3,8 +3,6 @@
 #include <SDL_pixels.h>
 #include <SDL_render.h>
 #include <SDL_surface.h>
-#include <SDL_ttf.h>
-#include <_types/_uint8_t.h>
 #include <cassert>
 #include <log.h>
 
@@ -61,7 +59,7 @@ Font::~Font() {
 }
 
 bool Font::load(Graphics& graphics, const std::string &path, int fontsize) {
-    TTF_Font* font = TTF_OpenFont(path.c_str(), fontsize);
+    /*TTF_Font* font = TTF_OpenFont(path.c_str(), fontsize);
     if (!font)
     {
         LOG_ERROR("Could not load font: " + path);
@@ -122,7 +120,7 @@ bool Font::load(Graphics& graphics, const std::string &path, int fontsize) {
     texture = SDL_CreateTextureFromSurface(graphics.renderer_, surface);
 
     TTF_CloseFont(font);
-    SDL_DestroySurface(surface);
+    SDL_DestroySurface(surface);*/
 
     return true;
 }

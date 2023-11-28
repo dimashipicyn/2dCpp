@@ -32,11 +32,11 @@ public:
 
 private:
 
-	using Mix_Music_ptr = std::unique_ptr<Mix_Music, void(*)(Mix_Music*)>;
+	/*using Mix_Music_ptr = std::unique_ptr<Mix_Music, void(*)(Mix_Music*)>;
 	using Mix_Chunk_ptr = std::unique_ptr<Mix_Chunk, void(*)(Mix_Chunk*)>;
 
 	std::unordered_map<std::string, Mix_Music_ptr>	musics_;
-	std::unordered_map<std::string, Mix_Chunk_ptr>	chunks_;
+	std::unordered_map<std::string, Mix_Chunk_ptr>	chunks_;*/
 
 	bool isInitialize_ = false;
 };

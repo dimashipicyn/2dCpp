@@ -1,6 +1,7 @@
 #include "game.h"
 #include "log.h"
 #include "Common.hpp"
+#include "Audio.hpp"
 
 #include <Node.hpp>
 #include <cassert>

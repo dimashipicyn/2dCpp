@@ -8,8 +8,6 @@
 #include <SDL_render.h>
 #include <math.h>
 #include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 
 Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
     : window_(nullptr)
@@ -25,7 +23,7 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
         return;
 	}
 
-    int imgFlags = IMG_INIT_PNG;
+    /*int imgFlags = IMG_INIT_PNG;
     if(!(IMG_Init( imgFlags ) & imgFlags))
     {
 		ok_ = false;
@@ -36,7 +34,7 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
     {
 		ok_ = false;
         LOG_ERROR(std::string{"SDL_ttf could not initialize! SDL_ttf Error: "} + TTF_GetError());
-    }
+    }*/
     
     window_ = SDL_CreateWindow(title.c_str(),width, height, 0);
     
@@ -62,8 +60,8 @@ Graphics::~Graphics()
 		window_ = nullptr;
 	}
 
-	TTF_Quit();
-	IMG_Quit();
+	/*TTF_Quit();
+	IMG_Quit();*/
 	SDL_Quit();
 }
 

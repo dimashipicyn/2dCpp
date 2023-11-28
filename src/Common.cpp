@@ -7,7 +7,12 @@
 
 #include "Common.hpp"
 
+#ifdef _WIN32
+#include <winsock.h>
+#pragma comment(lib, "wsock32.lib")
+#else
 #include <sys/select.h>
+#endif
 
 void sleep(int millisec)  {
 	struct timeval tv;
