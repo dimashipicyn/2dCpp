@@ -8,6 +8,8 @@
 #ifndef _сommon_hpp
 #define _сommon_hpp
 
+#include "Export.h"
+
 #include <memory>
 #include <chrono>
 
@@ -15,11 +17,12 @@ template<class T>
 using Ptr = std::shared_ptr<T>;
 
 template<class T, class... Args>
-Ptr<T> CreatePtr(Args&& ...args) {
+TWODCPP_EXPORT Ptr<T> CreatePtr(Args&&... args)
+{
 	return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
-struct Chrono
+struct TWODCPP_EXPORT Chrono
 {
 	Chrono() {
 		last_time = std::chrono::high_resolution_clock::now();
@@ -35,6 +38,6 @@ struct Chrono
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_time;
 };
 
-void sleep(int millisec);
+TWODCPP_EXPORT void sleep(int millisec);
 
 #endif /* _сommon_hpp */

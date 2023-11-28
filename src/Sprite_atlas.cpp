@@ -5,8 +5,6 @@
 //  Created by Dmitry Shipicyn on 14.09.2022.
 //
 
-#include "stdafx.h"
-
 #include "Sprite_atlas.hpp"
 #include "game.h"
 #include "graphics.h"

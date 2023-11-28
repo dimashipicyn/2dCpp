@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_H
 # define GRAPHICS_H
 
+#include "Export.h"
+
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -15,7 +17,7 @@ class Sprite;
 class Texture;
 class Font;
 
-struct Rect
+struct TWODCPP_EXPORT Rect
 {
 	Rect(int32_t _x = 0, int32_t _y = 0, int32_t _w = 0, int32_t _h = 0)
 		: x(_x)
@@ -52,7 +54,7 @@ struct Rect
 	int32_t h;
 };
 
-struct Color
+struct TWODCPP_EXPORT Color
 {
 	Color(uint8_t _r = 255, uint8_t _g = 255, uint8_t _b = 255, uint8_t _a = 255)
 		: r(_r)
@@ -96,7 +98,8 @@ struct Color
 #define color_blue Color(0,0,255,0)
 #define rand_color Color(rand()%256,rand()%256,rand()%256,rand()%256)
 
-class Graphics {
+class TWODCPP_EXPORT Graphics
+{
 public:
     Graphics(int32_t width, int32_t height, const std::string& title);
     ~Graphics();

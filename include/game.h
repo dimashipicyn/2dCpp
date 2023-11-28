@@ -1,6 +1,7 @@
 #ifndef GAME_H
 # define GAME_H
 
+#include "Export.h"
 #include "graphics.h"
 #include "input.h"
 #include "Audio.hpp"
@@ -15,14 +16,14 @@
 #include <stack>
 #include <vector>
 
-struct Config
+struct TWODCPP_EXPORT Config
 {
     int32_t width;
     int32_t heigth;
     std::string name;
 };
 
-class Game
+class TWODCPP_EXPORT Game
 {
 public:
     Game();

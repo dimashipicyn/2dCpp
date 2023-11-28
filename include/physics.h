@@ -1,6 +1,7 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
+#include "Export.h"
 #include "Common.hpp"
 
 #include <glm/vec2.hpp>
@@ -11,13 +12,13 @@
 
 //namespace physics {
 
-enum class ColliderType
+enum class TWODCPP_EXPORT ColliderType
 {
 	AABB,
 	CIRCLE
 };
 
-struct AABB
+struct TWODCPP_EXPORT AABB
 {
 	AABB();
 	AABB(float x, float y, float w, float h);
@@ -25,7 +26,7 @@ struct AABB
     glm::vec2 size;
 };
 
-struct Circle
+struct TWODCPP_EXPORT Circle
 {
 	Circle();
 	Circle(float x, float y, float r);
@@ -33,7 +34,7 @@ struct Circle
 	float radius;
 };
 
-class Collider
+class TWODCPP_EXPORT Collider
 {
 public:
 	Collider(const AABB& aabb);
@@ -59,7 +60,7 @@ private:
 	};
 };
 
-enum BitMask
+enum TWODCPP_EXPORT BitMask
 {
 	BIT_0  = 1 << 0,
 	BIT_1  = 1 << 1,
@@ -76,7 +77,7 @@ using BodyPtr = Ptr<Body>;
 
 using OnCollisionCallback = std::function<void(const Body& one, const Body& two)>;
 
-class Body
+class TWODCPP_EXPORT Body
 {
 public:
 	friend class Physics;
@@ -115,7 +116,7 @@ private:
 	bool            	is_enabled_;
 };
 
-class Physics
+class TWODCPP_EXPORT Physics
 {
 public:
 	Physics(float gravity);

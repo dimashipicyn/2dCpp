@@ -8,9 +8,10 @@
 #ifndef input_h
 #define input_h
 
+#include "Export.h"
 #include <glm/vec2.hpp>
 
-class Input
+class TWODCPP_EXPORT Input
 {
 public:
 	void handle();

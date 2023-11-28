@@ -5,8 +5,6 @@
 //  Created by Dmitry Shipicyn on 11.09.2022.
 //
 
-#include "stdafx.h"
-
 #include "Sprite.h"
 
 #include "game.h"

@@ -8,6 +8,7 @@
 #ifndef Sprite_atlas_hpp
 #define Sprite_atlas_hpp
 
+#include "Export.h"
 #include "Sprite.h"
 
 #include <map>
@@ -17,7 +18,7 @@ namespace Json {
     class Value;
 }
 
-class Sprite_atlas
+class TWODCPP_EXPORT Sprite_atlas
 {
 public:
     Sprite_atlas();

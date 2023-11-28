@@ -8,6 +8,7 @@
 #ifndef Node_hpp
 #define Node_hpp
 
+#include "Export.h"
 #include "Common.hpp"
 #include "physics.h"
 
@@ -19,7 +20,7 @@ class NodeBase;
 
 using NodePtr = Ptr<NodeBase>;
 
-class NodeBase
+class TWODCPP_EXPORT NodeBase
 {
 public:
 	virtual ~NodeBase();

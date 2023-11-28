@@ -1,6 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "Export.h"
 #include <stdint.h>
 #include <string>
 #include <memory>
@@ -9,7 +10,7 @@ typedef struct SDL_Texture SDL_Texture;
 
 class Graphics;
 
-class Texture
+class TWODCPP_EXPORT Texture
 {
 public:
 	Texture();

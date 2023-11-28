@@ -10,7 +10,7 @@ set(SOURCE_FILES
     log.cpp
     Node.cpp
     physics.cpp
-    Sprite_atlas.cpp
+    #Sprite_atlas.cpp
     Sprite.cpp
     SpriteNode.cpp
     texture.cpp

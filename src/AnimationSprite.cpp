@@ -5,8 +5,6 @@
 //  Created by Dmitry Shipicyn on 16.09.2022.
 //
 
-#include "stdafx.h"
-
 #include "AnimationSprite.hpp"
 
 AnimationSprite::AnimationSprite()

@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "texture.h"
 #include "graphics.h"
 #include "log.h"

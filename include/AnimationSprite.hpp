@@ -9,10 +9,11 @@
 #define AnimationSprite_hpp
 
 #include "Sprite.h"
+#include "Export.h"
 
 #include <vector>
 
-class AnimationSprite : public Sprite
+class TWODCPP_EXPORT AnimationSprite : public Sprite
 {
 public:
     AnimationSprite();

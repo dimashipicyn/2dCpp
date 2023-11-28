@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Export.h"
 #include "graphics.h"
 #include "Common.hpp"
 #include "Font.h"
@@ -25,7 +26,7 @@ using WidgetGridPtr = Ptr<WidgetGrid>;
 using WidgetSliderPtr = Ptr<WidgetSlider>;
 using WidgetButtonPtr = Ptr<WidgetButton>;
 
-class Widget
+class TWODCPP_EXPORT Widget
 {
 public:
     Widget(const std::string& name, int x = 0, int y = 0);
@@ -57,7 +58,7 @@ protected:
     int h = 0;
 };
 
-class WidgetGrid : public Widget
+class TWODCPP_EXPORT WidgetGrid : public Widget
 {
 public:
     WidgetGrid(const std::string& name, int x, int y, int cells_w, int cells_h, int cell_size_w, int cell_size_h);
@@ -76,7 +77,7 @@ private:
     int cell_size_h = 0;
 };
 
-class WidgetLabel : public Widget
+class TWODCPP_EXPORT WidgetLabel : public Widget
 {
 public:
     WidgetLabel(FontPtr font, int x, int y, const std::string& name, const std::string& label);
@@ -94,7 +95,7 @@ protected:
     Color color;
 };
 
-class WidgetButton : public Widget
+class TWODCPP_EXPORT WidgetButton : public Widget
 {
 public:
     WidgetButton(FontPtr font, int x, int y, const std::string& name, const std::string& text);
@@ -117,7 +118,7 @@ protected:
     bool in_focus = false;
 };
 
-class WidgetSelect : public Widget
+class TWODCPP_EXPORT WidgetSelect : public Widget
 {
 public:
     WidgetSelect(FontPtr font, int x, int y, const std::string& name);
@@ -137,7 +138,7 @@ private:
     int current_option = 0;
 };
 
-class WidgetSlider : public Widget
+class TWODCPP_EXPORT WidgetSlider : public Widget
 {
 public:
     WidgetSlider(FontPtr font, int x, int y, int size, int step, const std::string& name);

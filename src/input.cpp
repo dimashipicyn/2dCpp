@@ -5,8 +5,6 @@
 //  Created by Дима Щипицын on 05/09/2022.
 //
 
-#include "stdafx.h"
-
 #include "input.h"
 
 #include <SDL.h>

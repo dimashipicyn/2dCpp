@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Export.h"
 #include "graphics.h"
 #include "Common.hpp"
 
@@ -9,7 +10,7 @@
 class Font;
 using FontPtr = Ptr<Font>;
 
-class Font
+class TWODCPP_EXPORT Font
 {
 public:
     struct Glyph

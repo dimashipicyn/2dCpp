@@ -8,11 +8,12 @@
 #ifndef Sprite_h
 #define Sprite_h
 
+#include "Export.h"
 #include "texture.h"
 #include "graphics.h"
 #include "Node.hpp"
 
-class Sprite
+class TWODCPP_EXPORT Sprite
 {
 public:
     Sprite();

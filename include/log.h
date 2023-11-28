@@ -8,11 +8,12 @@
 #ifndef log_h
 #define log_h
 
+#include "Export.h"
 #include <string>
 
 namespace logging {
-    void log(int level, const std::string& s);
-    void set_log_level(int level);
+    TWODCPP_EXPORT void log(int level, const std::string& s);
+    TWODCPP_EXPORT void set_log_level(int level);
 }
 
 #define LOG_LEVEL_INFO 0

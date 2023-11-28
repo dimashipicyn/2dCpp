@@ -8,6 +8,8 @@
 #ifndef Audio_hpp
 #define Audio_hpp
 
+#include "Export.h"
+
 #include <unordered_map>
 #include <string>
 #include <memory>
@@ -15,7 +17,7 @@
 typedef struct _Mix_Music Mix_Music;
 typedef struct Mix_Chunk Mix_Chunk;
 
-class Audio
+class TWODCPP_EXPORT Audio
 {
 public:
 	Audio();

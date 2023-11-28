@@ -8,12 +8,13 @@
 #ifndef SpriteNode_hpp
 #define SpriteNode_hpp
 
+#include "Export.h"
 #include "Node.hpp"
 #include "Sprite.h"
 
 class Game;
 
-class SpriteNode : public Sprite, public NodeBase
+class TWODCPP_EXPORT SpriteNode : public Sprite, public NodeBase
 {
 public:
 	~SpriteNode();
