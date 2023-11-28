@@ -2,16 +2,17 @@
 #include "graphics.h"
 #include "log.h"
 
-#include <stddef.h>
 #include <assert.h>
-
-#include <SDL.h>
+#include <stddef.h>
 #include <string.h>
 
+#include <SDL.h>
+#include <png.h>
+
 Texture::Texture()
-	: texture_(nullptr)
-	, w_(0)
-	, h_(0)
+    : texture_(nullptr)
+    , w_(0)
+    , h_(0)
 {
 }
 
@@ -20,38 +21,65 @@ Texture::~Texture()
 }
 
 Texture::Texture(const Texture& texture)
-	: texture_(texture.texture_)
-	, w_(texture.w_)
-	, h_(texture.h_)
+    : texture_(texture.texture_)
+    , w_(texture.w_)
+    , h_(texture.h_)
 {
-
 }
 
-bool Texture::load(Graphics& graphics, const std::string &file_name)
+bool Texture::load(Graphics& graphics, const std::string& file_name)
 {
-    /*std::unique_ptr<SDL_Surface, void(*)(SDL_Surface*)> image{IMG_Load(file_name.c_str()), SDL_DestroySurface};
-	if (image == nullptr) {
-        LOG_ERROR("Could not load texture: " + file_name + ". Error: " + SDL_GetError());
-		return false;
-	}
-	SDL_SetSurfaceColorKey(image.get(), SDL_TRUE, SDL_MapRGB(image->format, 0, 0, 0x01));
+    png_image image; /* The control structure used by libpng */
 
-    //texture_.reset(SDL_CreateTextureFromSurface(graphics.renderer_, image.get()), SDL_DestroyTexture);
-    if (texture_ == nullptr) {
-        LOG_ERROR("Could not create texture: " + file_name + ". Error: " + SDL_GetError());
+    memset(&image, 0, (sizeof image));
+    image.version = PNG_IMAGE_VERSION;
+
+    if (png_image_begin_read_from_file(&image, file_name.c_str()) == 0)
+    {
         return false;
     }
-    
-	w_ = image->w;
-	h_ = image->h;*/
+
+    image.format = PNG_FORMAT_RGBA;
+    int imageSize = PNG_IMAGE_SIZE(image);
+
+    png_bytep buffer;
+    buffer = (png_bytep)malloc(imageSize);
+
+    if (buffer != NULL && png_image_finish_read(&image, NULL /*background*/, buffer, 0 /*row_stride*/, NULL /*colormap*/) != 0)
+    {
+        using SurfacePtr = std::unique_ptr<SDL_Surface, void (*)(SDL_Surface*)>;
+        int pitch = imageSize / image.height;
+        SurfacePtr surface { SDL_CreateSurfaceFrom(buffer, image.width, image.height, pitch, SDL_PIXELFORMAT_RGBA32), SDL_DestroySurface };
+        if (surface == nullptr)
+        {
+            LOG_ERROR("Could not create surface: " + file_name + ". Error: " + SDL_GetError());
+            free(buffer);
+            return false;
+        }
+
+        texture_.reset(SDL_CreateTextureFromSurface(graphics.renderer_, surface.get()), SDL_DestroyTexture);
+        if (texture_ == nullptr)
+        {
+            LOG_ERROR("Could not create texture: " + file_name + ". Error: " + SDL_GetError());
+            free(buffer);
+            return false;
+        }
+
+        w_ = image.width;
+        h_ = image.height;
+    }
+
+    free(buffer);
 
     return true;
 }
 
-int32_t Texture::get_w() const {
+int32_t Texture::get_w() const
+{
     return w_;
 }
 
-int32_t Texture::get_h() const {
+int32_t Texture::get_h() const
+{
     return h_;
 }

@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include "Export.h"
+
 #include <stdint.h>
 #include <string>
 #include <memory>
