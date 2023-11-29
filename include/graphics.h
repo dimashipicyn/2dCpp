@@ -123,6 +123,8 @@ public:
     
     int32_t get_width() const;
     int32_t get_height() const;
+
+	void debugRenderFont(Font& font);
     
 private:
 	friend class Texture;

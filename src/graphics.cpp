@@ -137,7 +137,9 @@ void Graphics::draw_char(const Font& font, int x, int y, char c, const Color& co
 {
 	Font::Glyph gl = font.get_glyph(c);
 	SDL_FRect src = {(float)gl.src.x, (float)gl.src.y, (float)gl.src.w, (float)gl.src.h};
-	SDL_FRect dest = {(float)x, (float)y, (float)src.w, (float)src.h};
+	float xPos = x + gl.bearingX;
+    float yPos = y - gl.bearingY;
+	SDL_FRect dest = {xPos, yPos, src.w, src.h};
 
 	Color saved_color;
 	SDL_GetTextureColorMod(gl.texture, &saved_color.r, &saved_color.g, &saved_color.b);
@@ -153,6 +155,11 @@ void Graphics::draw_str(const Font& font, int x, int y, const char* str, const C
 	{
 		draw_char(font, x, y, *c, color);
 		Font::Glyph gl = font.get_glyph(*c);
-		x+= gl.src.w;
+		x+= gl.advanceX;
 	}
+}
+
+void Graphics::debugRenderFont(Font& font)
+{
+    SDL_RenderTexture(renderer_, font.texture, NULL, NULL);
 }

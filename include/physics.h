@@ -12,7 +12,7 @@
 
 //namespace physics {
 
-enum class TWODCPP_EXPORT ColliderType
+enum class ColliderType
 {
 	AABB,
 	CIRCLE
@@ -60,7 +60,7 @@ private:
 	};
 };
 
-enum TWODCPP_EXPORT BitMask
+enum BitMask
 {
 	BIT_0  = 1 << 0,
 	BIT_1  = 1 << 1,

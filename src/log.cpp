@@ -20,9 +20,9 @@ namespace {
 
 namespace logging {
     void log(int level, const std::string& s) {
-        if (level > log_level) {
-            std::cerr << "|" << levels[level] << "|" << s << std::endl;
-        }
+        //if (level > log_level) {
+            std::cerr << "| " << levels[level] << " | " << s << std::endl;
+        //}
     }
     
     void set_log_level(int level) {

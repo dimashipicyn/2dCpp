@@ -13,6 +13,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     #jsoncpp_lib
     glm
     png_shared
+    freetype
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -22,4 +23,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     #third_party/jsoncpp/include
     third_party/miniaudio
     third_party/libpng
+    third_party/freetype/include
 )

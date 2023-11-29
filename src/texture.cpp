@@ -1,6 +1,7 @@
 #include "texture.h"
 #include "graphics.h"
 #include "log.h"
+#include "RaiiWrapper.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -8,6 +9,8 @@
 
 #include <SDL.h>
 #include <png.h>
+
+using SurfacePtr = std::unique_ptr<SDL_Surface, void (*)(SDL_Surface*)>;
 
 Texture::Texture()
     : texture_(nullptr)
@@ -42,18 +45,14 @@ bool Texture::load(Graphics& graphics, const std::string& file_name)
     image.format = PNG_FORMAT_RGBA;
     int imageSize = PNG_IMAGE_SIZE(image);
 
-    png_bytep buffer;
-    buffer = (png_bytep)malloc(imageSize);
-
-    if (buffer != NULL && png_image_finish_read(&image, NULL /*background*/, buffer, 0 /*row_stride*/, NULL /*colormap*/) != 0)
+    RaiiWrapper<png_bytep, void(*)(void*), free> buffer((png_bytep)malloc(imageSize));
+    if (buffer.get() != NULL && png_image_finish_read(&image, NULL /*background*/, buffer.get(), 0 /*row_stride*/, NULL /*colormap*/) != 0)
     {
-        using SurfacePtr = std::unique_ptr<SDL_Surface, void (*)(SDL_Surface*)>;
         int pitch = imageSize / image.height;
-        SurfacePtr surface { SDL_CreateSurfaceFrom(buffer, image.width, image.height, pitch, SDL_PIXELFORMAT_RGBA32), SDL_DestroySurface };
+        SurfacePtr surface { SDL_CreateSurfaceFrom(buffer.get(), image.width, image.height, pitch, SDL_PIXELFORMAT_RGBA32), SDL_DestroySurface };
         if (surface == nullptr)
         {
             LOG_ERROR("Could not create surface: " + file_name + ". Error: " + SDL_GetError());
-            free(buffer);
             return false;
         }
 
@@ -61,15 +60,12 @@ bool Texture::load(Graphics& graphics, const std::string& file_name)
         if (texture_ == nullptr)
         {
             LOG_ERROR("Could not create texture: " + file_name + ". Error: " + SDL_GetError());
-            free(buffer);
             return false;
         }
 
         w_ = image.width;
         h_ = image.height;
     }
-
-    free(buffer);
 
     return true;
 }

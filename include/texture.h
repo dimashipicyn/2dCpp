@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include "Export.h"
+#include "Common.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -10,6 +11,9 @@
 typedef struct SDL_Texture SDL_Texture;
 
 class Graphics;
+
+class Texture;
+using TexturePtr = Ptr<Texture>;
 
 class TWODCPP_EXPORT Texture
 {
@@ -26,10 +30,7 @@ public:
 
 private:
 	friend class Graphics;
-    
-    using Texture_ptr = std::shared_ptr<SDL_Texture>;
-
-	Texture_ptr texture_;
+	std::shared_ptr<SDL_Texture> texture_;
 	int32_t w_;
 	int32_t h_;
 };

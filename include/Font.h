@@ -15,8 +15,10 @@ class TWODCPP_EXPORT Font
 public:
     struct Glyph
     {
-        SDL_Texture *texture;
-        Rect src;
+        SDL_Texture *texture = nullptr;
+        Rect src = {};
+        int bearingX = 0, bearingY = 0; // Offset from baseline to left/top of glyph
+        int advanceX = 0, advanceY = 0; // Offset to advance to next glyph
     };
 
     struct Size
@@ -35,8 +37,11 @@ public:
 
     Glyph get_glyph(char c) const;
     Size get_str_size(const char* str);
+    Size get_size();
 
 private:
+    friend class Graphics;
     SDL_Texture* texture = nullptr;
-    std::array<Rect, 256> glyphs;
+    std::array<Glyph, 256> glyphs;
+    Size size;
 };
