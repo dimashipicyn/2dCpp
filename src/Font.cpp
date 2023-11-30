@@ -128,6 +128,12 @@ bool Font::load(Graphics& graphics, const std::string& path, int fontsize)
 
         dest.w = face->glyph->bitmap.width;
         dest.h = face->glyph->bitmap.rows;
+        if ((dest.x + dest.w) >= surfaceSize)
+        {
+            dest.x = 0;
+            dest.y += offsetY;
+            assert(dest.y < surfaceSize);
+        }
         SDL_BlitSurface(glyphSurface.get(), NULL, surface.get(), &dest);
 
         glyphs[ch].bearingX = face->glyph->bitmap_left;
@@ -141,16 +147,7 @@ bool Font::load(Graphics& graphics, const std::string& path, int fontsize)
             dest.h
         };
 
-        if (dest.x + dest.w + 5 < surfaceSize)
-        {
-            dest.x += dest.w;
-        }
-        else
-        {
-            dest.x = 0;
-            dest.y += offsetY;
-            assert(dest.y < surfaceSize);
-        }
+        dest.x += dest.w;
     }
 
     texture = SDL_CreateTextureFromSurface(graphics.renderer_, surface.get());
@@ -162,12 +159,12 @@ bool Font::load(Graphics& graphics, const std::string& path, int fontsize)
     return true;
 }
 
-Font::Glyph Font::get_glyph(char c) const
+const Font::Glyph& Font::get_glyph(char c) const
 {
     return glyphs[uint8_t(c)];
 }
 
-Font::Size Font::get_str_size(const char* str)
+const Font::Size& Font::get_str_size(const char* str) const
 {
     Size s;
     for (const char* c = str; *c != '\0'; c++)
@@ -179,7 +176,7 @@ Font::Size Font::get_str_size(const char* str)
     return s;
 }
 
-Font::Size Font::get_size()
+const Font::Size& Font::get_size() const
 {
     return size;
 }

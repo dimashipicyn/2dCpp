@@ -138,7 +138,7 @@ void Graphics::draw_char(const Font& font, int x, int y, char c, const Color& co
 	Font::Glyph gl = font.get_glyph(c);
 	SDL_FRect src = {(float)gl.src.x, (float)gl.src.y, (float)gl.src.w, (float)gl.src.h};
 	float xPos = x + gl.bearingX;
-    float yPos = y - gl.bearingY;
+    float yPos = y - gl.bearingY + font.get_size().h;
 	SDL_FRect dest = {xPos, yPos, src.w, src.h};
 
 	Color saved_color;

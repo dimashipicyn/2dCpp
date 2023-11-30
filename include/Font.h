@@ -35,9 +35,9 @@ public:
 
     bool load(Graphics& graphics, const std::string& path, int fontsize);
 
-    Glyph get_glyph(char c) const;
-    Size get_str_size(const char* str);
-    Size get_size();
+    const Glyph& get_glyph(char c) const;
+    const Size& get_str_size(const char* str) const;
+    const Size& get_size() const;
 
 private:
     friend class Graphics;

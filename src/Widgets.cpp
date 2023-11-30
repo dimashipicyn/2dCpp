@@ -40,7 +40,7 @@ int Widget::get_h()
     return h;
 }
 
-WidgetLabel::WidgetLabel(FontPtr font, int x, int y, const std::string &name, const std::string &label)
+Label::Label(FontPtr font, int x, int y, const std::string &name, const std::string &label)
     : Widget(name, x, y)
     , font(font)
     , label(label)
@@ -50,27 +50,27 @@ WidgetLabel::WidgetLabel(FontPtr font, int x, int y, const std::string &name, co
     h = s.h;
 }
 
-WidgetLabel::~WidgetLabel()
+Label::~Label()
 {
 
 }
 
-void WidgetLabel::update(Game &)
+void Label::update(Game &)
 {
     
 }
 
-void WidgetLabel::render(Game &game)
+void Label::render(Game &game)
 {
     game.get_graphics().draw_str(*font, x, y, label.c_str(), color);
 }
 
-void WidgetLabel::set_color(const Color& color)
+void Label::set_color(const Color& color)
 {
     this->color = color;
 }
 
-void WidgetLabel::set_label(const std::string& label)
+void Label::set_label(const std::string& label)
 {
     this->label = label;
     Font::Size s = font->get_str_size(label.c_str());
@@ -78,7 +78,7 @@ void WidgetLabel::set_label(const std::string& label)
     h = s.h;
 }
 
-WidgetButton::WidgetButton(FontPtr font, int x, int y, const std::string &name, const std::string &text)
+Button::Button(FontPtr font, int x, int y, const std::string &name, const std::string &text)
     : Widget(name, x, y)
     , font(font)
     , text(text)
@@ -88,12 +88,12 @@ WidgetButton::WidgetButton(FontPtr font, int x, int y, const std::string &name, 
     h = s.h;
 }
 
-WidgetButton::~WidgetButton()
+Button::~Button()
 {
 
 }
 
-void WidgetButton::update(Game &game)
+void Button::update(Game &game)
 {
     glm::vec2 mouse = game.get_input().get_mouse_position();
     bool is_pressed = game.get_input().get_button(Input::MouseLeft);
@@ -102,9 +102,9 @@ void WidgetButton::update(Game &game)
     if (dest.contains(mouse.x, mouse.y))
     {
         in_focus = true;
-        if (is_pressed && cb)
+        if (is_pressed)
         {
-            cb();
+            invoke(WidgetSignal::LeftClick);
         }
     }
     else {
@@ -112,49 +112,45 @@ void WidgetButton::update(Game &game)
     }
 }
 
-void WidgetButton::render(Game &game)
+void Button::render(Game &game)
 {
     Color c = in_focus ? color_green : color;
     game.get_graphics().draw_str(*font, x, y, text.c_str(), c);
 }
 
-void WidgetButton::set_color(const Color& color)
+void Button::set_color(const Color& color)
 {
     this->color = color;
 }
 
-void WidgetButton::set_text(const std::string& text)
+void Button::set_text(const std::string& text)
 {
     this->text = text;
 }
 
-void WidgetButton::on_click(on_click_callback cb)
-{
-    this->cb = cb;
-}
-
-WidgetSelect::WidgetSelect(FontPtr font, int x, int y, const std::string& name)
+Select::Select(FontPtr font, int x, int y, const std::string& name)
     : Widget(name, x, y)
     , left(font, x, y, "", "< ")
     , right(font, x + font->get_str_size("< ").w, y, "", " >")
     , label(font, x, y, "", "")
 {
-    left.on_click([this](){
+    left.on(WidgetSignal::LeftClick, [this](){
         current_option = std::max(current_option - 1, 0);
     });
-    right.on_click([this](){
+    right.on(WidgetSignal::LeftClick, [this]()
+        {
         if (options.empty())
             return;
         current_option = std::min(current_option + 1, (int)options.size() - 1);
     });
 }
 
-WidgetSelect::~WidgetSelect()
+Select::~Select()
 {
 
 }
 
-void WidgetSelect::update(Game& game)
+void Select::update(Game& game)
 {
     left.update(game);
     right.update(game);
@@ -168,7 +164,7 @@ void WidgetSelect::update(Game& game)
     label.set_label(options[current_option]);
 }
 
-void WidgetSelect::render(Game& game)
+void Select::render(Game& game)
 {
     left.set_x(x);
     label.set_x(left.get_x() + left.get_w());
@@ -183,19 +179,19 @@ void WidgetSelect::render(Game& game)
     right.render(game);
 }
 
-void WidgetSelect::set_color(const Color& color)
+void Select::set_color(const Color& color)
 {
     left.set_color(color);
     right.set_color(color);
     label.set_color(color);
 }
 
-void WidgetSelect::add_option(const std::string& opt)
+void Select::add_option(const std::string& opt)
 {
     options.emplace_back(opt);   
 }
 
-WidgetGrid::WidgetGrid(const std::string& name, int x, int y, int cells_w, int cells_h, int cell_size_w, int cell_size_h)
+Grid::Grid(const std::string& name, int x, int y, int cells_w, int cells_h, int cell_size_w, int cell_size_h)
     : Widget(name, x, y)
     , cells_w(cells_w)
     , cells_h(cells_h)
@@ -207,12 +203,12 @@ WidgetGrid::WidgetGrid(const std::string& name, int x, int y, int cells_w, int c
     h = cells_h * cell_size_h;
 }
 
-WidgetGrid::~WidgetGrid()
+Grid::~Grid()
 {
 
 }
 
-void WidgetGrid::update(Game& game)
+void Grid::update(Game& game)
 {
     for (WidgetPtr& w : childs) {
         if (w)
@@ -220,7 +216,7 @@ void WidgetGrid::update(Game& game)
     }
 }
 
-void WidgetGrid::render(Game& game)
+void Grid::render(Game& game)
 {
     for (WidgetPtr& w : childs) {
         if (w)
@@ -228,7 +224,7 @@ void WidgetGrid::render(Game& game)
     }
 }
 
-void WidgetGrid::set(int row, int col, WidgetPtr widget)
+void Grid::set(int row, int col, WidgetPtr widget)
 {
     childs[row * cells_w + col] = std::move(widget);
 
@@ -238,39 +234,41 @@ void WidgetGrid::set(int row, int col, WidgetPtr widget)
             if (!c)
                 break;
             
-            c->set_x(x + j * cell_size_w);
-            c->set_y(y + i * cell_size_h);
+            c->set_x(x + j * cell_size_w);// + c->get_x());
+            c->set_y(y + i * cell_size_h);// + c->get_y());
         }
     }
 }
 
-WidgetSlider::WidgetSlider(FontPtr font, int x, int y, int size, int step, const std::string& name)
+Slider::Slider(FontPtr font, int x, int y, int size, int step, const std::string& name)
     : Widget(name, x, y)
     , left(font, x, y, "", "< ")
     , right(font, x + font->get_str_size("< ").w, y, "", " >")
     , step(step)
     , size(size)
 {
-    left.on_click([this](){
+    left.on(WidgetSignal::LeftClick, [this]()
+        {
         value = std::max(value - this->step, 0);
     });
-    right.on_click([this](){
+    right.on(WidgetSignal::LeftClick, [this]()
+        {
         value = std::min(value + this->step, this->size - 2);
     });
 }
 
-WidgetSlider::~WidgetSlider()
+Slider::~Slider()
 {
 
 }
 
-void WidgetSlider::update(Game& game)
+void Slider::update(Game& game)
 {
     left.update(game);
     right.update(game);
 }
 
-void WidgetSlider::render(Game& game)
+void Slider::render(Game& game)
 {
     left.set_x(x);
     int slider_y = y + ceil(left.get_h() / 2.0f) - 10;

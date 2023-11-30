@@ -15,6 +15,7 @@ set(HEADER_FILES
     SpriteNode.hpp
     texture.h
     Widgets.h
+    Signal.h
 )
 
 target_sources(${PROJECT_NAME} PUBLIC ${HEADER_FILES})

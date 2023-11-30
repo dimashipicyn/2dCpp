@@ -5,6 +5,7 @@
 #include "Common.hpp"
 #include "Font.h"
 #include "Sprite.h"
+#include "Signal.h"
 
 #include <fstream>
 #include <functional>
@@ -13,20 +14,30 @@
 
 class Game;
 class Widget;
-class WidgetLabel;
-class WidgetSelect;
-class WidgetGrid;
-class WidgetSlider;
-class WidgetButton;
+class Label;
+class Select;
+class Grid;
+class Slider;
+class Button;
 
 using WidgetPtr = Ptr<Widget>;
-using WidgetLabelPtr = Ptr<WidgetLabel>;
-using WidgetSelectPtr = Ptr<WidgetSelect>;
-using WidgetGridPtr = Ptr<WidgetGrid>;
-using WidgetSliderPtr = Ptr<WidgetSlider>;
-using WidgetButtonPtr = Ptr<WidgetButton>;
+using LabelPtr = Ptr<Label>;
+using SelectPtr = Ptr<Select>;
+using GridPtr = Ptr<Grid>;
+using SliderPtr = Ptr<Slider>;
+using ButtonPtr = Ptr<Button>;
 
-class TWODCPP_EXPORT Widget
+enum class WidgetSignal
+{
+    LeftClick,
+    RightClick,
+    Changed,
+    Enter,
+    Leave,
+    WidgetSignalCount
+};
+
+class TWODCPP_EXPORT Widget : public Signal<Widget, WidgetSignal, WidgetSignal::WidgetSignalCount>
 {
 public:
     Widget(const std::string& name, int x = 0, int y = 0);
@@ -34,11 +45,6 @@ public:
 
     virtual void update(Game& game) = 0;
     virtual void render(Game& game) = 0;
-
-    void on_click(Widget& w);
-    void on_enter(Widget& w);
-    void on_leave(Widget& w);
-    void on_changed(Widget& w);
 
     int get_x();
     int get_y();
@@ -58,11 +64,11 @@ protected:
     int h = 0;
 };
 
-class TWODCPP_EXPORT WidgetGrid : public Widget
+class TWODCPP_EXPORT Grid : public Widget
 {
 public:
-    WidgetGrid(const std::string& name, int x, int y, int cells_w, int cells_h, int cell_size_w, int cell_size_h);
-    ~WidgetGrid();
+    Grid(const std::string& name, int x, int y, int cells_w, int cells_h, int cell_size_w, int cell_size_h);
+    ~Grid();
 
     virtual void update(Game& game);
     virtual void render(Game& game);
@@ -77,11 +83,11 @@ private:
     int cell_size_h = 0;
 };
 
-class TWODCPP_EXPORT WidgetLabel : public Widget
+class TWODCPP_EXPORT Label : public Widget
 {
 public:
-    WidgetLabel(FontPtr font, int x, int y, const std::string& name, const std::string& label);
-    virtual ~WidgetLabel();
+    Label(FontPtr font, int x, int y, const std::string& name, const std::string& label);
+    virtual ~Label();
 
     virtual void update(Game& game);
     virtual void render(Game& game);
@@ -95,11 +101,11 @@ protected:
     Color color;
 };
 
-class TWODCPP_EXPORT WidgetButton : public Widget
+class TWODCPP_EXPORT Button : public Widget
 {
 public:
-    WidgetButton(FontPtr font, int x, int y, const std::string& name, const std::string& text);
-    virtual ~WidgetButton();
+    Button(FontPtr font, int x, int y, const std::string& name, const std::string& text);
+    virtual ~Button();
 
     virtual void update(Game& game);
     virtual void render(Game& game);
@@ -107,22 +113,18 @@ public:
     void set_color(const Color& color);
     void set_text(const std::string& text);
 
-    using on_click_callback = std::function<void()>;
-    void on_click(on_click_callback cb);
-
 protected:
     FontPtr font;
-    on_click_callback cb;
     std::string text;
     Color color;
     bool in_focus = false;
 };
 
-class TWODCPP_EXPORT WidgetSelect : public Widget
+class TWODCPP_EXPORT Select : public Widget
 {
 public:
-    WidgetSelect(FontPtr font, int x, int y, const std::string& name);
-    ~WidgetSelect();
+    Select(FontPtr font, int x, int y, const std::string& name);
+    ~Select();
 
     virtual void update(Game& game);
     virtual void render(Game& game);
@@ -131,25 +133,25 @@ public:
     void add_option(const std::string& opt);
 
 private:
-    WidgetButton left;
-    WidgetButton right;
-    WidgetLabel label;
+    Button left;
+    Button right;
+    Label label;
     std::vector<std::string> options;
     int current_option = 0;
 };
 
-class TWODCPP_EXPORT WidgetSlider : public Widget
+class TWODCPP_EXPORT Slider : public Widget
 {
 public:
-    WidgetSlider(FontPtr font, int x, int y, int size, int step, const std::string& name);
-    ~WidgetSlider();
+    Slider(FontPtr font, int x, int y, int size, int step, const std::string& name);
+    ~Slider();
 
     virtual void update(Game& game);
     virtual void render(Game& game);
 
 private:
-    WidgetButton left;
-    WidgetButton right;
+    Button left;
+    Button right;
     int step = 0;
     int size = 0;
     int value = 0;

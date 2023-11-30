@@ -63,9 +63,9 @@ void Game::run()
         }
 
         NodePtr current_scene = scenes_.top();
+        current_scene->update_internal(*this);
 
         while (lag_ >= tick_time_) {
-            current_scene->update_internal(*this);
             physics_->step(tick_time_);
             current_scene->sync_physic();
 
