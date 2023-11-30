@@ -9,6 +9,7 @@
 #include "game.h"
 
 #include <algorithm>
+#include <iterator>
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 

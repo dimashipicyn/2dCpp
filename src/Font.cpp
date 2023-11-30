@@ -1,4 +1,5 @@
 #include "Font.h"
+#include "game.h"
 #include "RaiiWrapper.h"
 #include "log.h"
 
@@ -65,7 +66,7 @@ Font::~Font()
 
 #define TRUNC(x) ((x) >> 6)
 
-bool Font::load(Graphics& graphics, const std::string& path, int fontsize)
+bool Font::load(Game& game, const std::string& path, int fontsize)
 {
     FT_Error err = FT_Err_Ok;
     RaiiWrapper<FT_Library, FT_Error (*)(FT_Library), FT_Done_FreeType> ft;
@@ -150,7 +151,7 @@ bool Font::load(Graphics& graphics, const std::string& path, int fontsize)
         dest.x += dest.w;
     }
 
-    texture = SDL_CreateTextureFromSurface(graphics.renderer_, surface.get());
+    texture = SDL_CreateTextureFromSurface(game.get_graphics().renderer_, surface.get());
     for (int ch = 0; ch < 256; ch++)
     {
         glyphs[ch].texture = texture;
@@ -164,7 +165,7 @@ const Font::Glyph& Font::get_glyph(char c) const
     return glyphs[uint8_t(c)];
 }
 
-const Font::Size& Font::get_str_size(const char* str) const
+Font::Size Font::get_str_size(const char* str) const
 {
     Size s;
     for (const char* c = str; *c != '\0'; c++)

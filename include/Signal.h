@@ -9,7 +9,7 @@ template <class T, class SignalEnum, SignalEnum signalEnumSize>
 class Signal
 {
 public:
-	using Callback = std::function<void(const T&)>;
+    using Callback = std::function<void(const T&)>;
     using CallbackWithoutArg = std::function<void()>;
 
 private:
@@ -25,15 +25,15 @@ public:
     
     template <class Owner>
     void on(SignalEnum signal, Owner* owner, CallbackMf<Owner> callback)
-	{
+    {
         assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
         functions_[(int)signal].push_front(Ctx { owner, [owner, callback, this]()
             { std::invoke(callback, owner, *static_cast<T*>(this)); }
         });
-	}
+    }
 
     template <class Owner>
-	using CallbackMfWithoutArg = void(Owner::*)();
+    using CallbackMfWithoutArg = void(Owner::*)();
 
     template<class Owner>
     void on(SignalEnum signal, Owner* owner, CallbackMfWithoutArg<Owner> callback)
@@ -65,7 +65,7 @@ public:
             list.end());
     }
 
-	void invoke(SignalEnum signal)
+    void invoke(SignalEnum signal)
     {
         for (Ctx& ctx : functions_[(int)signal])
         {
@@ -74,6 +74,6 @@ public:
     }
 
 private:
-	using CtxList = std::list<Ctx>;
-	std::array<CtxList, (int)signalEnumSize> functions_;
+    using CtxList = std::list<Ctx>;
+    std::array<CtxList, (int)signalEnumSize> functions_;
 };

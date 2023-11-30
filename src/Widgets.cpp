@@ -3,51 +3,99 @@
 #include "graphics.h"
 #include "input.h"
 #include "game.h"
+#include "Provider.h"
 
 #include <cassert>
 #include <glm/ext/vector_float2.hpp>
 
-Widget::Widget(const std::string& name, int x, int y)
-    : name(name)
-    , x(x)
-    , y(y)
+Widget::Widget(Widget* parent)
+    : parent_ { parent }
 {
-
+    if (parent_)
+    {
+        parent_->childs_.push_front(this);
+    }
 }
 
 Widget::~Widget()
 {
-
+    if (parent_)
+    {
+        for (Widget* w : childs_)
+        {
+            delete w;
+        }
+        parent_->childs_.erase(std::remove(parent_->childs_.begin(), parent_->childs_.end(), this), parent_->childs_.end());
+    }
 }
 
-int Widget::get_x()
+void Widget::update(Game& game)
 {
-    return x;
+    if (!enabled())
+    {
+        return;
+    }
+
+    glm::vec2 mouse = game.get_input().get_mouse_position();
+    bool leftPresed = game.get_input().get_button(Input::MouseLeft);
+    bool rightPresed = game.get_input().get_button(Input::MouseRight);
+
+    int x = parent_ ? parent_->pos().x + pos().x : pos().x;
+    int y = parent_ ? parent_->pos().y + pos().y : pos().y;
+    Rect dest(x, y, size().w, size().h);
+    if (dest.contains(mouse.x, mouse.y))
+    {
+        inFocus_ = true;
+        if (!onEnter_)
+        {
+            invoke(WidgetSignal::Enter);
+            onEnter_ = true;
+        }
+        if (leftPresed)
+        {
+            invoke(WidgetSignal::LeftClick);
+        }
+        if (rightPresed)
+        {
+            invoke(WidgetSignal::RightClick);
+        }
+    }
+    else
+    {
+        inFocus_ = false;
+        if (onEnter_)
+        {
+            invoke(WidgetSignal::Leave);
+            onEnter_ = false;
+        }
+    }
+
+    for (Widget* c : childs_)
+    {
+        c->update(game);
+    }
 }
 
-int Widget::get_y()
+void Widget::render(Game& game)
 {
-    return y;
+    if (!enabled())
+    {
+        return;
+    }
+
+    for (Widget* c : childs_)
+    {
+        c->render(game);
+    }
 }
 
-int Widget::get_w()
+Label::Label(const std::string& text, Widget* parent)
+    : Widget(parent)
+    , text_(text)
 {
-    return w;
-}
-
-int Widget::get_h()
-{
-    return h;
-}
-
-Label::Label(FontPtr font, int x, int y, const std::string &name, const std::string &label)
-    : Widget(name, x, y)
-    , font(font)
-    , label(label)
-{
-    Font::Size s = font->get_str_size(label.c_str());
-    w = s.w;
-    h = s.h;
+    font_ = Provider::get().get<Resources>().get<Font>("gui.ttf", 14);
+    Font::Size s = font_->get_str_size(text_.c_str());
+    setSize(Size(s.w, s.h));
 }
 
 Label::~Label()
@@ -55,37 +103,43 @@ Label::~Label()
 
 }
 
-void Label::update(Game &)
+void Label::update(Game& game)
 {
-    
+    Widget::update(game);
 }
 
-void Label::render(Game &game)
+void Label::render(Game& game)
 {
-    game.get_graphics().draw_str(*font, x, y, label.c_str(), color);
+    if (!enabled())
+    {
+        return;
+    }
+
+    int x = parent_ ? parent_->pos().x + pos().x : pos().x;
+    int y = parent_ ? parent_->pos().y + pos().y : pos().y;
+    game.get_graphics().draw_str(*font_,
+        x,
+        y,
+        text_.c_str(),
+        color_);
+    Widget::render(game);
 }
 
 void Label::set_color(const Color& color)
 {
-    this->color = color;
+    color_ = color;
 }
 
-void Label::set_label(const std::string& label)
+void Label::set_text(const std::string& text)
 {
-    this->label = label;
-    Font::Size s = font->get_str_size(label.c_str());
-    w = s.w;
-    h = s.h;
+    text_ = text;
+    Font::Size s = font_->get_str_size(text.c_str());
+    setSize(Size(s.w, s.h));
 }
 
-Button::Button(FontPtr font, int x, int y, const std::string &name, const std::string &text)
-    : Widget(name, x, y)
-    , font(font)
-    , text(text)
+Button::Button(const std::string& text, Widget* parent)
+    : Label(text, parent)
 {
-    Font::Size s = font->get_str_size(text.c_str());
-    w = s.w;
-    h = s.h;
 }
 
 Button::~Button()
@@ -95,54 +149,40 @@ Button::~Button()
 
 void Button::update(Game &game)
 {
-    glm::vec2 mouse = game.get_input().get_mouse_position();
-    bool is_pressed = game.get_input().get_button(Input::MouseLeft);
-
-    Rect dest(x, y, w, h);
-    if (dest.contains(mouse.x, mouse.y))
-    {
-        in_focus = true;
-        if (is_pressed)
-        {
-            invoke(WidgetSignal::LeftClick);
-        }
-    }
-    else {
-        in_focus = false;
-    }
+    Label::update(game);
 }
 
 void Button::render(Game &game)
 {
-    Color c = in_focus ? color_green : color;
-    game.get_graphics().draw_str(*font, x, y, text.c_str(), c);
+    Color save = color_;
+    color_ = inFocus() ? color_green : color_;
+    Label::render(game);
+    color_ = save;
 }
 
-void Button::set_color(const Color& color)
+Select::Select(Widget* parent)
+    : Widget(parent)
+    , left("<", this)
+    , right(">", this)
 {
-    this->color = color;
-}
+    right.setPos(Point(left.pos().x + left.size().w, 0));
 
-void Button::set_text(const std::string& text)
-{
-    this->text = text;
-}
-
-Select::Select(FontPtr font, int x, int y, const std::string& name)
-    : Widget(name, x, y)
-    , left(font, x, y, "", "< ")
-    , right(font, x + font->get_str_size("< ").w, y, "", " >")
-    , label(font, x, y, "", "")
-{
-    left.on(WidgetSignal::LeftClick, [this](){
-        current_option = std::max(current_option - 1, 0);
-    });
+    left.on(WidgetSignal::LeftClick, [this]()
+        {
+            if (options.empty())
+                return;
+            options[current_option]->setEnabled(false);
+            current_option = std::max(current_option - 1, 0);
+            options[current_option]->setEnabled(true);
+        });
     right.on(WidgetSignal::LeftClick, [this]()
         {
-        if (options.empty())
-            return;
-        current_option = std::min(current_option + 1, (int)options.size() - 1);
-    });
+            if (options.empty())
+                return;
+            options[current_option]->setEnabled(false);
+            current_option = std::min(current_option + 1, (int)options.size() - 1);
+            options[current_option]->setEnabled(true);
+        });
 }
 
 Select::~Select()
@@ -152,55 +192,42 @@ Select::~Select()
 
 void Select::update(Game& game)
 {
-    left.update(game);
-    right.update(game);
-    label.update(game);
-
-    if (options.empty())
+    if (!enabled())
     {
         return;
     }
 
-    label.set_label(options[current_option]);
+    int rightX = left.pos().x + left.size().w + spacing().w;
+    if (!options.empty())
+    {
+        auto& opt = options[current_option];
+        opt->setPos(Point(rightX, opt->pos().y));
+        rightX += opt->size().w + spacing().w;
+    }
+    right.setPos(Point(rightX, right.pos().y));
+
+    Widget::update(game);
 }
 
 void Select::render(Game& game)
 {
-    left.set_x(x);
-    label.set_x(left.get_x() + left.get_w());
-    right.set_x(label.get_x() + label.get_w());
-
-    left.set_y(y);
-    label.set_y(y);
-    right.set_y(y);
-
-    left.render(game);
-    label.render(game);
-    right.render(game);
-}
-
-void Select::set_color(const Color& color)
-{
-    left.set_color(color);
-    right.set_color(color);
-    label.set_color(color);
+    Widget::render(game);
 }
 
 void Select::add_option(const std::string& opt)
 {
-    options.emplace_back(opt);   
+    options.emplace_back(CreatePtr<Label>(opt, this));
+    options.back()->setEnabled(false);
+    options[current_option]->setEnabled(true);
 }
 
-Grid::Grid(const std::string& name, int x, int y, int cells_w, int cells_h, int cell_size_w, int cell_size_h)
-    : Widget(name, x, y)
+Grid::Grid(int cells_w, int cells_h, Widget* parent)
+    : Widget(parent)
     , cells_w(cells_w)
     , cells_h(cells_h)
-    , cell_size_w(cell_size_w)
-    , cell_size_h(cell_size_h)
+
 {
-    childs.resize(cells_w * cells_h);
-    w = cells_w * cell_size_w;
-    h = cells_h * cell_size_h;
+
 }
 
 Grid::~Grid()
@@ -210,50 +237,48 @@ Grid::~Grid()
 
 void Grid::update(Game& game)
 {
-    for (WidgetPtr& w : childs) {
-        if (w)
-            w->update(game);
-    }
+    Widget::update(game);
 }
 
 void Grid::render(Game& game)
 {
-    for (WidgetPtr& w : childs) {
-        if (w)
-            w->render(game);
-    }
+    Widget::render(game);
 }
 
-void Grid::set(int row, int col, WidgetPtr widget)
+void Grid::set(int row, int col, Widget* widget)
 {
-    childs[row * cells_w + col] = std::move(widget);
+    //childs_[row * cells_w + col] = std::move(widget);
 
-    for (int i = 0; i < cells_h; i++) {
-        for (int j = 0; j < cells_w; j++) {
-            auto& c = childs[i * cells_w + j];
-            if (!c)
-                break;
-            
-            c->set_x(x + j * cell_size_w);// + c->get_x());
-            c->set_y(y + i * cell_size_h);// + c->get_y());
-        }
-    }
+    //for (int i = 0; i < cells_h; i++) {
+    //    for (int j = 0; j < cells_w; j++) {
+    //        auto& c = childs[i * cells_w + j];
+    //        if (!c)
+    //            break;
+    //        
+    //        c->set_x(x + j * cell_size_w);// + c->get_x());
+    //        c->set_y(y + i * cell_size_h);// + c->get_y());
+    //    }
+    //}
 }
 
-Slider::Slider(FontPtr font, int x, int y, int size, int step, const std::string& name)
-    : Widget(name, x, y)
-    , left(font, x, y, "", "< ")
-    , right(font, x + font->get_str_size("< ").w, y, "", " >")
-    , step(step)
-    , size(size)
+Slider::Slider(float step, float value, Widget* parent)
+    : Widget(parent)
+    , left_("<", this)
+    , right_(">", this)
+    , step_(step)
 {
-    left.on(WidgetSignal::LeftClick, [this]()
+    int w = left_.size().w + right_.size().w;
+    int h = std::max(left_.size().h, right_.size().h);
+    setSize(Size(w, h));
+    setSpacing(Size(1, 1));
+
+    left_.on(WidgetSignal::LeftClick, [this]()
         {
-        value = std::max(value - this->step, 0);
+        value_ = std::max(value_ - this->step_, 0.0f);
     });
-    right.on(WidgetSignal::LeftClick, [this]()
+    right_.on(WidgetSignal::LeftClick, [this]()
         {
-        value = std::min(value + this->step, this->size - 2);
+        value_ = std::min(value_ + this->step_, 1.0f);
     });
 }
 
@@ -264,23 +289,43 @@ Slider::~Slider()
 
 void Slider::update(Game& game)
 {
-    left.update(game);
-    right.update(game);
+    if (!enabled())
+    {
+        return;
+    }
+
+    int buttonsW = left_.size().w + right_.size().w;
+    int buttonsH = std::max(left_.size().h, right_.size().h);
+    if (size().w == 0)
+    {
+        setSize(Size(buttonsW + 2, size().h));
+    }
+    if (size().h == 0)
+    {
+        setSize(Size(size().w, buttonsH * 2));
+    }
+
+    int sliderOutlineX = left_.pos().x + left_.size().w + spacing().w;
+    sliderOutline_ = Rect(sliderOutlineX, pos().y, size().w - buttonsW, size().h);
+
+    int rightX = sliderOutline_.x + sliderOutline_.w + spacing().w;
+    right_.setPos(Point(rightX, right_.pos().y));
+
+    Widget::update(game);
 }
 
 void Slider::render(Game& game)
 {
-    left.set_x(x);
-    int slider_y = y + ceil(left.get_h() / 2.0f) - 10;
-    Rect slider_outline(left.get_x() + left.get_w(), slider_y, size, 20);
-    Rect slider(left.get_x() + left.get_w() + 1, slider_y + 1,value, 18);
-    right.set_x(slider_outline.x + slider_outline.w);
+    if (!enabled())
+    {
+        return;
+    }
 
-    left.set_y(y);
-    right.set_y(y);
+    int w = (sliderOutline_.w - 2) * value();
+    Rect slider(sliderOutline_.x + 1, sliderOutline_.y + 1, w, sliderOutline_.h - 2);
 
-    left.render(game);
-    game.get_graphics().draw_outline_rect(slider_outline, Color());
+    game.get_graphics().draw_outline_rect(sliderOutline_, Color());
     game.get_graphics().draw_rect(slider, color_green);
-    right.render(game);
+
+    Widget::render(game);
 }

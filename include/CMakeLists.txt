@@ -16,6 +16,9 @@ set(HEADER_FILES
     texture.h
     Widgets.h
     Signal.h
+    Resources.h
+    Provider.h
+    Provider.cpp
 )
 
 target_sources(${PROJECT_NAME} PUBLIC ${HEADER_FILES})

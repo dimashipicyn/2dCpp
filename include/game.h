@@ -8,7 +8,8 @@
 #include "physics.h"
 #include "Widgets.h"
 #include "Font.h"
-#include <Node.hpp>
+#include "Node.hpp"
+#include "Resources.h"
 
 #include <cstdint>
 #include <memory>
@@ -29,11 +30,12 @@ public:
     Game();
     Game(const Config& config);
     ~Game();
-    
+
     Graphics& get_graphics();
-	Input& get_input();
-	Audio& get_audio();
-	Physics& get_physics();
+    Input& get_input();
+    Audio& get_audio();
+    Physics& get_physics();
+    Resources& resources();
 
 	float get_tick() const;
 	float get_elapsed() const;
@@ -62,6 +64,7 @@ private:
     std::unique_ptr<Graphics> graphics_;
 	std::unique_ptr<Audio> audio_;
 	std::unique_ptr<Physics> physics_;
+    std::unique_ptr<Resources> resources_;
     std::stack<NodePtr> scenes_;
 
     bool quit_ = false;

@@ -22,22 +22,8 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
         LOG_ERROR(std::string{"SDL video could not initialize! Error: "} + SDL_GetError());
         return;
 	}
-
-    /*int imgFlags = IMG_INIT_PNG;
-    if(!(IMG_Init( imgFlags ) & imgFlags))
-    {
-		ok_ = false;
-        LOG_ERROR(std::string{"SDL_image could not initialize! SDL_image Error: "} + IMG_GetError());
-    }
-
-    if(TTF_Init() == -1)
-    {
-		ok_ = false;
-        LOG_ERROR(std::string{"SDL_ttf could not initialize! SDL_ttf Error: "} + TTF_GetError());
-    }*/
     
     window_ = SDL_CreateWindow(title.c_str(),width, height, 0);
-    
     renderer_ = SDL_CreateRenderer(window_, nullptr, 0);
 
 	if (!window_ || !renderer_) {
@@ -60,8 +46,6 @@ Graphics::~Graphics()
 		window_ = nullptr;
 	}
 
-	/*TTF_Quit();
-	IMG_Quit();*/
 	SDL_Quit();
 }
 

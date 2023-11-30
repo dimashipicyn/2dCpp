@@ -29,7 +29,7 @@ struct TWODCPP_EXPORT Chrono
 	}
 
 	double reset() {
-		auto now = std::chrono::steady_clock::now();
+		auto now = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> diff = now - last_time;
 		last_time = now;
 		return diff.count();
@@ -39,5 +39,27 @@ struct TWODCPP_EXPORT Chrono
 };
 
 TWODCPP_EXPORT void sleep(int millisec);
+
+struct TWODCPP_EXPORT Point
+{
+    Point(int x_ = 0, int y_ = 0)
+        : x { x_ }
+        , y { y_ }
+	{
+    }
+    int x;
+    int y;
+};
+
+struct TWODCPP_EXPORT Size
+{
+    Size(int w_ = 0, int h_ = 0)
+        : w { w_ }
+        , h { h_ }
+    {
+    }
+    int w;
+    int h;
+};
 
 #endif /* _сommon_hpp */

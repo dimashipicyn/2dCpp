@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Export.h"
-#include "graphics.h"
 #include "Common.hpp"
+#include "graphics.h"
 
 #include <string>
 #include <array>
+
+class Game;
 
 class Font;
 using FontPtr = Ptr<Font>;
@@ -33,11 +34,11 @@ public:
     Font(const Font& o) = delete;
     Font(Font&& o) = delete;
 
-    bool load(Graphics& graphics, const std::string& path, int fontsize);
+    bool load(Game& game, const std::string& path, int fontsize);
 
     const Glyph& get_glyph(char c) const;
-    const Size& get_str_size(const char* str) const;
     const Size& get_size() const;
+    Size get_str_size(const char* str) const;
 
 private:
     friend class Graphics;

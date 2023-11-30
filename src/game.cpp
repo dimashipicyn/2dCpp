@@ -2,8 +2,9 @@
 #include "log.h"
 #include "Common.hpp"
 #include "Audio.hpp"
+#include "Provider.h"
+#include "Node.hpp"
 
-#include <Node.hpp>
 #include <cassert>
 #include <glm/common.hpp>
 
@@ -27,6 +28,13 @@ Game::Game(const Config &config)
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
 	audio_ = std::make_unique<Audio>();
 	physics_ = std::make_unique<Physics>(1.0f);
+    resources_ = std::make_unique<Resources>(*this);
+
+    Provider::get().provide<Game>(this);
+    Provider::get().provide<Graphics>(graphics_.get());
+    Provider::get().provide<Audio>(audio_.get());
+    Provider::get().provide<Physics>(physics_.get());
+    Provider::get().provide<Resources>(resources_.get());
 }
 
 Game::~Game()
@@ -113,6 +121,11 @@ Audio &Game::get_audio() {
 
 Physics &Game::get_physics() {
 	return *physics_;
+}
+
+Resources& Game::resources()
+{
+    return *resources_;
 }
 
 float Game::get_elapsed() const {
