@@ -151,6 +151,7 @@ bool Font::load(Game& game, const std::string& path, int fontsize)
         dest.x += dest.w;
     }
 
+    SDL_SetSurfaceBlendMode(surface.get(), SDL_BLENDMODE_BLEND);
     texture = SDL_CreateTextureFromSurface(game.get_graphics().renderer_, surface.get());
     for (int ch = 0; ch < 256; ch++)
     {
@@ -171,7 +172,7 @@ Font::Size Font::get_str_size(const char* str) const
     for (const char* c = str; *c != '\0'; c++)
     {
         Glyph gl = get_glyph(*c);
-        s.w += gl.advanceX;
+        s.w += gl.advanceX + gl.bearingX;
         s.h = std::max(gl.src.h, s.h);
     }
     return s;

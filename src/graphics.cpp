@@ -22,9 +22,9 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
         LOG_ERROR(std::string{"SDL video could not initialize! Error: "} + SDL_GetError());
         return;
 	}
-    
+
     window_ = SDL_CreateWindow(title.c_str(),width, height, 0);
-    renderer_ = SDL_CreateRenderer(window_, nullptr, 0);
+    renderer_ = SDL_CreateRenderer(window_, nullptr, SDL_RENDERER_ACCELERATED);
 
 	if (!window_ || !renderer_) {
 		ok_ = false;

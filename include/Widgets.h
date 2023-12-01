@@ -16,6 +16,8 @@ class Select;
 class Grid;
 class Slider;
 class Button;
+class HLayout;
+class VLayout;
 
 using WidgetPtr = Ptr<Widget>;
 using LabelPtr = Ptr<Label>;
@@ -23,6 +25,8 @@ using SelectPtr = Ptr<Select>;
 using GridPtr = Ptr<Grid>;
 using SliderPtr = Ptr<Slider>;
 using ButtonPtr = Ptr<Button>;
+using HLayoutPtr = Ptr<HLayout>;
+using VLayoutPtr = Ptr<VLayout>;
 
 enum class WidgetSignal
 {
@@ -42,14 +46,30 @@ public:
     Widget& operator=(const Widget&) = delete;
     virtual ~Widget();
 
+    Widget* parent() { return parent_; }
+    void setParent(Widget* w)
+    {
+        w->childs_.push_back(this);
+        parent_ = w;
+    }
+
     virtual void update(Game& game);
     virtual void render(Game& game);
+
+    const Point worldPos() const
+    {
+        return parent_ ? parent_->worldPos() + pos() : pos();
+    }
 
     const Point& pos() const { return pos_; }
     void setPos(const Point& pos) { pos_ = pos; }
 
     const Size& size() const { return size_; }
-    void setSize(const Size& size) { size_ = size; }
+    void setSize(const Size& size)
+    {
+        calculate();
+        size_ = size;
+    }
 
     const Size& spacing() const { return spacing_; }
     void setSpacing(const Size& spacing) { spacing_ = spacing; }
@@ -57,6 +77,9 @@ public:
     bool inFocus() const { return inFocus_; }
     bool enabled() const { return enabled_; }
     void setEnabled(bool enabled) { enabled_ = enabled; }
+
+private:
+    virtual void calculate() { }
 
 protected:
     Widget* parent_;
@@ -69,30 +92,49 @@ protected:
     bool enabled_ = true;
 };
 
-class TWODCPP_EXPORT Grid : public Widget
+class TWODCPP_EXPORT Rectangle : public Widget
 {
 public:
-    Grid(int cells_w, int cells_h, Widget* parent = nullptr);
-    ~Grid();
+    Rectangle(Widget* widget = nullptr)
+        : Widget(widget)
+    {
+    }
+    virtual void render(Game& game) override;
 
-    virtual void update(Game& game);
-    virtual void render(Game& game);
+    bool fill() const { return fill_; }
+    void setFill(bool fill) { fill_ = fill; }
 
-    void set(int row, int col, Widget* w);
+    const Color& color() const { return color_; }
+    void setColor(const Color& color) { color_ = color; }
 
 private:
-    int cells_w = 0;
-    int cells_h = 0;
+    Color color_;
+    bool fill_ = false;
+};
+
+class TWODCPP_EXPORT HLayout : public Widget
+{
+public:
+    HLayout(Widget* parent = nullptr);
+    void add(Widget* w);
+    virtual void update(Game& game) override;
+};
+
+class TWODCPP_EXPORT VLayout : public Widget
+{
+public:
+    VLayout(Widget* parent = nullptr);
+    void add(Widget* w);
+    virtual void update(Game& game) override;
 };
 
 class TWODCPP_EXPORT Label : public Widget
 {
 public:
     Label(const std::string& text, Widget* parent = 0);
-    virtual ~Label();
 
-    virtual void update(Game& game);
-    virtual void render(Game& game);
+    virtual void update(Game& game) override;
+    virtual void render(Game& game) override;
 
     void set_color(const Color& color);
     void set_text(const std::string& text);
@@ -107,38 +149,34 @@ class TWODCPP_EXPORT Button : public Label
 {
 public:
     Button(const std::string& text, Widget* parent = nullptr);
-    virtual ~Button();
 
-    virtual void update(Game& game);
-    virtual void render(Game& game);
+    virtual void update(Game& game) override;
+    virtual void render(Game& game) override;
 };
 
 class TWODCPP_EXPORT Select : public Widget
 {
 public:
     Select(Widget* parent = nullptr);
-    ~Select();
 
-    virtual void update(Game& game);
-    virtual void render(Game& game);
+    virtual void update(Game& game) override;
+    virtual void render(Game& game) override;
 
     void add_option(const std::string& opt);
 
 private:
-    Button left;
-    Button right;
-    std::vector<LabelPtr> options;
+    HLayout hlayout;
+    Label option;
+    std::vector<std::string> options;
     int current_option = 0;
 };
 
 class TWODCPP_EXPORT Slider : public Widget
 {
 public:
-    Slider(float step, float value, Widget* parent = nullptr);
-    ~Slider();
+    Slider(float step = 0.1f, float value = 0.0f, Widget* parent = nullptr);
 
-    virtual void update(Game& game);
-    virtual void render(Game& game);
+    virtual void render(Game& game) override;
 
     float step() const { return step_; }
     void setStep(float step) { step_ = std::min(step, 1.0f); }
@@ -146,9 +184,14 @@ public:
     void setValue(float value) { value_ = std::min(value, 1.0f); }
 
 private:
+    void calculate() override;
+
+private:
+    HLayout layout_;
     Button left_;
     Button right_;
-    Rect sliderOutline_;
+    Rectangle outline_;
+    Rectangle rect_;
     float step_ = 0;
     float value_ = 0;
 };

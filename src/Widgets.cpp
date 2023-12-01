@@ -13,7 +13,7 @@ Widget::Widget(Widget* parent)
 {
     if (parent_)
     {
-        parent_->childs_.push_front(this);
+        parent_->childs_.push_back(this);
     }
 }
 
@@ -36,13 +36,17 @@ void Widget::update(Game& game)
         return;
     }
 
+    for (Widget* c : childs_)
+    {
+        c->update(game);
+    }
+
     glm::vec2 mouse = game.get_input().get_mouse_position();
     bool leftPresed = game.get_input().get_button(Input::MouseLeft);
     bool rightPresed = game.get_input().get_button(Input::MouseRight);
 
-    int x = parent_ ? parent_->pos().x + pos().x : pos().x;
-    int y = parent_ ? parent_->pos().y + pos().y : pos().y;
-    Rect dest(x, y, size().w, size().h);
+    Point wPos = worldPos();
+    Rect dest(wPos.x, wPos.y, size().w, size().h);
     if (dest.contains(mouse.x, mouse.y))
     {
         inFocus_ = true;
@@ -69,11 +73,6 @@ void Widget::update(Game& game)
             onEnter_ = false;
         }
     }
-
-    for (Widget* c : childs_)
-    {
-        c->update(game);
-    }
 }
 
 void Widget::render(Game& game)
@@ -89,18 +88,63 @@ void Widget::render(Game& game)
     }
 }
 
+HLayout::HLayout(Widget* parent)
+    : Widget(parent)
+{
+}
+
+void HLayout::add(Widget* w)
+{
+    w->setParent(this);
+}
+
+void HLayout::update(Game& game)
+{
+    Widget::update(game);
+
+    int maxH = 0;
+    int x = spacing().w;
+    for (Widget* w : childs_)
+    {
+        maxH = std::max(maxH, w->size().h);
+        w->setPos(Point(x, w->pos().y));
+        x += w->size().w + spacing().w;
+    }
+    setSize(Size(x, maxH));
+}
+
+VLayout::VLayout(Widget* parent)
+    : Widget(parent)
+{
+}
+
+void VLayout::add(Widget* w)
+{
+    w->setParent(this);
+}
+
+void VLayout::update(Game& game)
+{
+    Widget::update(game);
+
+    int maxW = 0;
+    int y = spacing().h;
+    for (Widget* w : childs_)
+    {
+        maxW = std::max(maxW, w->size().w);
+        w->setPos(Point(w->pos().x, y));
+        y += w->size().h + spacing().h;
+    }
+    setSize(Size(maxW, y));
+}
+
 Label::Label(const std::string& text, Widget* parent)
     : Widget(parent)
     , text_(text)
 {
-    font_ = Provider::get().get<Resources>().get<Font>("gui.ttf", 14);
+    font_ = Provider::get().get<Resources>().get<Font>("EightBits.ttf", 35);
     Font::Size s = font_->get_str_size(text_.c_str());
     setSize(Size(s.w, s.h));
-}
-
-Label::~Label()
-{
-
 }
 
 void Label::update(Game& game)
@@ -115,11 +159,10 @@ void Label::render(Game& game)
         return;
     }
 
-    int x = parent_ ? parent_->pos().x + pos().x : pos().x;
-    int y = parent_ ? parent_->pos().y + pos().y : pos().y;
+    Point pos = worldPos();
     game.get_graphics().draw_str(*font_,
-        x,
-        y,
+        pos.x,
+        pos.y,
         text_.c_str(),
         color_);
     Widget::render(game);
@@ -142,11 +185,6 @@ Button::Button(const std::string& text, Widget* parent)
 {
 }
 
-Button::~Button()
-{
-
-}
-
 void Button::update(Game &game)
 {
     Label::update(game);
@@ -162,32 +200,25 @@ void Button::render(Game &game)
 
 Select::Select(Widget* parent)
     : Widget(parent)
-    , left("<", this)
-    , right(">", this)
+    , hlayout(this)
+    , option("default")
 {
-    right.setPos(Point(left.pos().x + left.size().w, 0));
+    auto left = new Button("<", &hlayout);
+    option.setParent(&hlayout);
+    auto right = new Button(">", &hlayout);
 
-    left.on(WidgetSignal::LeftClick, [this]()
+    left->on(WidgetSignal::LeftClick, [this]()
         {
             if (options.empty())
                 return;
-            options[current_option]->setEnabled(false);
             current_option = std::max(current_option - 1, 0);
-            options[current_option]->setEnabled(true);
         });
-    right.on(WidgetSignal::LeftClick, [this]()
+    right->on(WidgetSignal::LeftClick, [this]()
         {
             if (options.empty())
                 return;
-            options[current_option]->setEnabled(false);
             current_option = std::min(current_option + 1, (int)options.size() - 1);
-            options[current_option]->setEnabled(true);
         });
-}
-
-Select::~Select()
-{
-
 }
 
 void Select::update(Game& game)
@@ -197,16 +228,9 @@ void Select::update(Game& game)
         return;
     }
 
-    int rightX = left.pos().x + left.size().w + spacing().w;
-    if (!options.empty())
-    {
-        auto& opt = options[current_option];
-        opt->setPos(Point(rightX, opt->pos().y));
-        rightX += opt->size().w + spacing().w;
-    }
-    right.setPos(Point(rightX, right.pos().y));
-
     Widget::update(game);
+    option.set_text(options[current_option]);
+    setSize(hlayout.size());
 }
 
 void Select::render(Game& game)
@@ -216,102 +240,29 @@ void Select::render(Game& game)
 
 void Select::add_option(const std::string& opt)
 {
-    options.emplace_back(CreatePtr<Label>(opt, this));
-    options.back()->setEnabled(false);
-    options[current_option]->setEnabled(true);
-}
-
-Grid::Grid(int cells_w, int cells_h, Widget* parent)
-    : Widget(parent)
-    , cells_w(cells_w)
-    , cells_h(cells_h)
-
-{
-
-}
-
-Grid::~Grid()
-{
-
-}
-
-void Grid::update(Game& game)
-{
-    Widget::update(game);
-}
-
-void Grid::render(Game& game)
-{
-    Widget::render(game);
-}
-
-void Grid::set(int row, int col, Widget* widget)
-{
-    //childs_[row * cells_w + col] = std::move(widget);
-
-    //for (int i = 0; i < cells_h; i++) {
-    //    for (int j = 0; j < cells_w; j++) {
-    //        auto& c = childs[i * cells_w + j];
-    //        if (!c)
-    //            break;
-    //        
-    //        c->set_x(x + j * cell_size_w);// + c->get_x());
-    //        c->set_y(y + i * cell_size_h);// + c->get_y());
-    //    }
-    //}
+    options.emplace_back(opt);
 }
 
 Slider::Slider(float step, float value, Widget* parent)
     : Widget(parent)
-    , left_("<", this)
-    , right_(">", this)
+    , layout_(this)
+    , left_("<")
+    , right_(">")
     , step_(step)
+    , value_(value)
 {
-    int w = left_.size().w + right_.size().w;
-    int h = std::max(left_.size().h, right_.size().h);
-    setSize(Size(w, h));
-    setSpacing(Size(1, 1));
+    left_.setParent(&layout_);
+    outline_.setParent(&layout_);
+    rect_.setPos(Point(1, 1));
+    rect_.setParent(&outline_);
+    right_.setParent(&layout_);
 
-    left_.on(WidgetSignal::LeftClick, [this]()
-        {
-        value_ = std::max(value_ - this->step_, 0.0f);
-    });
+    left_.on(WidgetSignal::LeftClick, this, [this]()
+        { value_ = std::max(value_ - this->step_, 0.0f); });
     right_.on(WidgetSignal::LeftClick, [this]()
-        {
-        value_ = std::min(value_ + this->step_, 1.0f);
-    });
-}
+        { value_ = std::min(value_ + this->step_, 1.0f); });
 
-Slider::~Slider()
-{
-
-}
-
-void Slider::update(Game& game)
-{
-    if (!enabled())
-    {
-        return;
-    }
-
-    int buttonsW = left_.size().w + right_.size().w;
-    int buttonsH = std::max(left_.size().h, right_.size().h);
-    if (size().w == 0)
-    {
-        setSize(Size(buttonsW + 2, size().h));
-    }
-    if (size().h == 0)
-    {
-        setSize(Size(size().w, buttonsH * 2));
-    }
-
-    int sliderOutlineX = left_.pos().x + left_.size().w + spacing().w;
-    sliderOutline_ = Rect(sliderOutlineX, pos().y, size().w - buttonsW, size().h);
-
-    int rightX = sliderOutline_.x + sliderOutline_.w + spacing().w;
-    right_.setPos(Point(rightX, right_.pos().y));
-
-    Widget::update(game);
+    calculate();
 }
 
 void Slider::render(Game& game)
@@ -321,11 +272,37 @@ void Slider::render(Game& game)
         return;
     }
 
-    int w = (sliderOutline_.w - 2) * value();
-    Rect slider(sliderOutline_.x + 1, sliderOutline_.y + 1, w, sliderOutline_.h - 2);
-
-    game.get_graphics().draw_outline_rect(sliderOutline_, Color());
-    game.get_graphics().draw_rect(slider, color_green);
-
     Widget::render(game);
+}
+
+void Slider::calculate()
+{
+    int buttonsW = left_.size().w + right_.size().w;
+    int buttonsH = std::max(left_.size().h, right_.size().h);
+    if (size().w == 0)
+    {
+        size_ = Size(buttonsW, size().h);
+    }
+    if (size().h == 0)
+    {
+        size_ = Size(size().w, buttonsH);
+    }
+    int w = std::max(size().w - buttonsW - 1, 3);
+    int h = std::max(size().h, buttonsH);
+    outline_.setSize(Size(w, h));
+    rect_.setSize(Size(outline_.size().w - 2, outline_.size().h - 2));
+}
+
+void Rectangle::render(Game& game)
+{
+    auto wPos = worldPos();
+    Rect rect(wPos.x, wPos.y, size().w, size().h);
+    if (fill_)
+    {
+        game.get_graphics().draw_rect(rect, color_);
+    }
+    else
+    {
+        game.get_graphics().draw_outline_rect(rect, color_);
+    }
 }

@@ -47,9 +47,13 @@ struct TWODCPP_EXPORT Point
         , y { y_ }
 	{
     }
+
     int x;
     int y;
 };
+
+TWODCPP_EXPORT Point operator+(const Point& lhs, const Point& rhs);
+TWODCPP_EXPORT Point operator-(const Point& lhs, const Point& rhs);
 
 struct TWODCPP_EXPORT Size
 {

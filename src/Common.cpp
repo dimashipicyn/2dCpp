@@ -20,3 +20,13 @@ void sleep(int millisec)  {
 	tv.tv_usec = millisec * 1000;
 	select(0, NULL, NULL, NULL, &tv);
 }
+
+Point TWODCPP_EXPORT operator+(const Point& lhs, const Point& rhs)
+{
+    return Point(lhs.x + rhs.x, lhs.y + rhs.y);
+}
+
+Point TWODCPP_EXPORT operator-(const Point& lhs, const Point& rhs)
+{
+    return Point(lhs.x - rhs.x, lhs.y - rhs.y);
+}
