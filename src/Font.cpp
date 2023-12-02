@@ -169,12 +169,20 @@ const Font::Glyph& Font::get_glyph(char c) const
 Font::Size Font::get_str_size(const char* str) const
 {
     Size s;
+    Glyph min;
+    min.bearingY = INT_MAX;
+
+    auto comp = [](auto l, auto r)
+    { return l.bearingY < r.bearingY; };
+    
     for (const char* c = str; *c != '\0'; c++)
     {
         Glyph gl = get_glyph(*c);
         s.w += gl.advanceX + gl.bearingX;
-        s.h = std::max(gl.src.h, s.h);
+        
+        min = std::min(gl, min, comp);
     }
+    s.h = get_size().h + (get_size().h - min.bearingY);
     return s;
 }
 

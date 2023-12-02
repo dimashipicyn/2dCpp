@@ -63,6 +63,11 @@ struct TWODCPP_EXPORT Color
 		, a(_a)
 	{}
 
+	Color(const Color&) = default;
+    Color& operator=(const Color&) = default;
+    Color(Color&&) = default;
+    Color& operator=(Color&&) = default;
+
 	Color operator+(const Color& o)
 	{
 		Color ret;

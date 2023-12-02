@@ -1,21 +1,20 @@
 #ifndef GAME_H
 # define GAME_H
 
-#include "Export.h"
-#include "graphics.h"
-#include "input.h"
-#include "Audio.hpp"
-#include "physics.h"
-#include "Widgets.h"
-#include "Font.h"
-#include "Node.hpp"
-#include "Resources.h"
+#include "Common.hpp"
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <stack>
 #include <vector>
+
+class Graphics;
+class Input;
+class Audio;
+class Physics;
+class Resources;
+class NodeBase;
 
 struct TWODCPP_EXPORT Config
 {
@@ -43,7 +42,7 @@ public:
 
 	void set_fps(float fps);
 
-    void push(NodePtr scene);
+    void push(Ptr<NodeBase> scene);
     void pop();
 
     void run();
@@ -60,12 +59,12 @@ private:
 	float			elapsed_ = 0.0f;
 	float			fps = 60.0f;
 
-	Input input_;
+	std::unique_ptr<Input> input_;
     std::unique_ptr<Graphics> graphics_;
 	std::unique_ptr<Audio> audio_;
 	std::unique_ptr<Physics> physics_;
     std::unique_ptr<Resources> resources_;
-    std::stack<NodePtr> scenes_;
+    std::stack<Ptr<NodeBase>> scenes_;
 
     bool quit_ = false;
 };

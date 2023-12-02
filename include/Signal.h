@@ -12,7 +12,10 @@ public:
     {
         for (SignalBase* s : connected_)
         {
-            s->remove(this);
+            if (s != this)
+            {
+                s->remove(this);
+            }
         }
     }
 
@@ -26,7 +29,7 @@ template <class T, class SignalEnum, SignalEnum signalEnumSize>
 class Signal : public SignalBase
 {
 public:
-    using Callback = std::function<void(const T&)>;
+    using Callback = std::function<void(const T*)>;
     using CallbackWithoutArg = std::function<void()>;
 
 private:
@@ -38,7 +41,7 @@ private:
 
 public:
     template<class Owner>
-    using CallbackMf = void (Owner::*)(const T&);
+    using CallbackMf = void (Owner::*)(const T*);
     
     template <class Owner>
     void on(SignalEnum signal, SignalBase* owner, CallbackMf<Owner> callback)
@@ -58,21 +61,21 @@ public:
     {
         assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
         functions_[(int)signal].push_front(Ctx { owner, [owner, callback]()
-            { std::invoke(callback, owner); } });
+            { std::invoke(callback, static_cast<Owner*>(owner)); } });
     }
 
     void on(SignalEnum signal, Callback callback)
     {
         assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
         functions_[(int)signal].push_front(Ctx { nullptr, [cb = std::move(callback), this]
-            { std::invoke(cb, *static_cast<T*>(this)); } });
+            { std::invoke(cb, static_cast<T*>(this)); } });
     }
 
     void on(SignalEnum signal, SignalBase* owner, Callback callback)
     {
         assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
         functions_[(int)signal].push_front(Ctx { owner, [cb = std::move(callback), this]
-            { std::invoke(cb, *static_cast<T*>(this)); } });
+            { std::invoke(cb, static_cast<T*>(this)); } });
     }
 
     void on(SignalEnum signal, CallbackWithoutArg callback)

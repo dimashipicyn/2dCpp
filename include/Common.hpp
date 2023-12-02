@@ -54,6 +54,8 @@ struct TWODCPP_EXPORT Point
 
 TWODCPP_EXPORT Point operator+(const Point& lhs, const Point& rhs);
 TWODCPP_EXPORT Point operator-(const Point& lhs, const Point& rhs);
+TWODCPP_EXPORT bool operator==(const Point& lhs, const Point& rhs);
+TWODCPP_EXPORT bool operator!=(const Point& lhs, const Point& rhs);
 
 struct TWODCPP_EXPORT Size
 {
@@ -65,5 +67,8 @@ struct TWODCPP_EXPORT Size
     int w;
     int h;
 };
+
+TWODCPP_EXPORT bool operator==(const Size& lhs, const Size& rhs);
+TWODCPP_EXPORT bool operator!=(const Size& lhs, const Size& rhs);
 
 #endif /* _сommon_hpp */

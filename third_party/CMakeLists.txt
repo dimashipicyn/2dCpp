@@ -1,4 +1,4 @@
-
+set(CMAKE_CXX_CLANG_TIDY "")
 # https://github.com/libsdl-org/SDL/issues/6454
 if(APPLE)
     enable_language(OBJC)

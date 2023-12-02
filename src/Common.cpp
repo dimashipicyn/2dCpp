@@ -30,3 +30,23 @@ Point TWODCPP_EXPORT operator-(const Point& lhs, const Point& rhs)
 {
     return Point(lhs.x - rhs.x, lhs.y - rhs.y);
 }
+
+bool operator==(const Point& lhs, const Point& rhs)
+{
+    return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+bool operator!=(const Point& lhs, const Point& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
+bool operator==(const Size& lhs, const Size& rhs)
+{
+    return lhs.w == rhs.w && lhs.h == rhs.h;
+}
+
+bool operator!=(const Size& lhs, const Size& rhs)
+{
+    return !operator==(lhs, rhs);
+}

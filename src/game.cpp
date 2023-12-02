@@ -1,9 +1,13 @@
 #include "game.h"
-#include "log.h"
-#include "Common.hpp"
+
+#include "graphics.h"
+#include "input.h"
 #include "Audio.hpp"
-#include "Provider.h"
+#include "physics.h"
 #include "Node.hpp"
+#include "Resources.h"
+#include "Provider.h"
+#include "log.h"
 
 #include <cassert>
 #include <glm/common.hpp>
@@ -25,6 +29,7 @@ Game::Game(const Config &config)
     , name_(config.name)
     , tick_time_(1 / 60.0f)
 {
+    input_ = std::make_unique<Input>();
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
 	audio_ = std::make_unique<Audio>();
 	physics_ = std::make_unique<Physics>(1.0f);
@@ -60,8 +65,8 @@ void Game::run()
     {
         graphics_->clear_frame();
 
-		input_.handle();
-        quit_ = input_.get_button(Input::Quit) != 0;
+		input_->handle();
+        quit_ = input_->get_button(Input::Quit) != 0;
 
         lag_ += elapsed_;
 
@@ -112,7 +117,7 @@ Graphics &Game::get_graphics() {
 }
 
 Input &Game::get_input() { 
-	return input_;
+	return *input_;
 }
 
 Audio &Game::get_audio() {

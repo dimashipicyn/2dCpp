@@ -35,12 +35,28 @@ enum class WidgetSignal
     Changed,
     Enter,
     Leave,
+    Move,
+    Resize,
     WidgetSignalCount
+};
+
+enum class Align
+{
+    Top,
+    Left,
+    Right,
+    Bottom,
+    Center,
+    HCenter,
+    VCenter
 };
 
 class TWODCPP_EXPORT Widget : public Signal<Widget, WidgetSignal, WidgetSignal::WidgetSignalCount>
 {
 public:
+    using enum WidgetSignal;
+    using enum Align;
+
     Widget(Widget* parent = nullptr);
     Widget(const Widget&) = delete;
     Widget& operator=(const Widget&) = delete;
@@ -49,8 +65,15 @@ public:
     Widget* parent() { return parent_; }
     void setParent(Widget* w)
     {
-        w->childs_.push_back(this);
+        if (parent_)
+        {
+            parent_->removeChild(this);
+        }
         parent_ = w;
+        if (parent_)
+        {
+            w->addChild(this);
+        }
     }
 
     virtual void update(Game& game);
@@ -62,78 +85,95 @@ public:
     }
 
     const Point& pos() const { return pos_; }
-    void setPos(const Point& pos) { pos_ = pos; }
-
-    const Size& size() const { return size_; }
-    void setSize(const Size& size)
+    void move(const Point& pos)
     {
-        calculate();
-        size_ = size;
+        pos_ = pos;
+        invoke(Move);
     }
 
-    const Size& spacing() const { return spacing_; }
-    void setSpacing(const Size& spacing) { spacing_ = spacing; }
+    const Size& size() const { return size_; }
+    void resize(const Size& size)
+    {
+        size_ = size;
+        invoke(Resize);
+    }
 
     bool inFocus() const { return inFocus_; }
     bool enabled() const { return enabled_; }
     void setEnabled(bool enabled) { enabled_ = enabled; }
 
-private:
-    virtual void calculate() { }
-
 protected:
+    void addChild(Widget* child)
+    {
+        childs_.push_back(child);
+        invoke(Resize);
+    }
+
+    void removeChild(Widget* child)
+    {
+        childs_.erase(std::remove(childs_.begin(), childs_.end(), child), childs_.end());
+    }
+
+    std::list<Widget*>& childs() { return childs_; }
+
+    Size size_;
+private:
     Widget* parent_;
     std::list<Widget*> childs_;
     Point pos_;
-    Size size_;
-    Size spacing_;
     bool onEnter_ = false;
     bool inFocus_ = false;
     bool enabled_ = true;
 };
 
-class TWODCPP_EXPORT Rectangle : public Widget
+class TWODCPP_EXPORT Layout : public Widget
 {
 public:
-    Rectangle(Widget* widget = nullptr)
-        : Widget(widget)
+    Layout(Widget* parent = nullptr)
+        : Widget(parent)
     {
+        //on(Move, this, &Layout::recalc);
+        //on(Resize, this, &Layout::recalc);
     }
-    virtual void render(Game& game) override;
 
-    bool fill() const { return fill_; }
-    void setFill(bool fill) { fill_ = fill; }
+    void add(Widget* w);
 
-    const Color& color() const { return color_; }
-    void setColor(const Color& color) { color_ = color; }
+    int margin() const { return margin_; }
+    void setMargin(int margin)
+    {
+        margin_ = margin;
+        invoke(Resize);
+    }
 
 private:
-    Color color_;
-    bool fill_ = false;
+    virtual void recalc() = 0;
+
+private:
+    int margin_ = 0;
 };
 
-class TWODCPP_EXPORT HLayout : public Widget
+class TWODCPP_EXPORT HLayout : public Layout
 {
 public:
     HLayout(Widget* parent = nullptr);
-    void add(Widget* w);
-    virtual void update(Game& game) override;
+
+private:
+    void recalc() override;
 };
 
-class TWODCPP_EXPORT VLayout : public Widget
+class TWODCPP_EXPORT VLayout : public Layout
 {
 public:
     VLayout(Widget* parent = nullptr);
-    void add(Widget* w);
-    virtual void update(Game& game) override;
+
+private:
+    void recalc() override;
 };
 
 class TWODCPP_EXPORT Label : public Widget
 {
 public:
     Label(const std::string& text, Widget* parent = 0);
-
-    virtual void update(Game& game) override;
     virtual void render(Game& game) override;
 
     void set_color(const Color& color);
@@ -145,23 +185,28 @@ protected:
     Color color_;
 };
 
-class TWODCPP_EXPORT Button : public Label
+class TWODCPP_EXPORT Button : public Widget
 {
 public:
     Button(const std::string& text, Widget* parent = nullptr);
-
-    virtual void update(Game& game) override;
     virtual void render(Game& game) override;
+
+    const Color& color() const { return color_; }
+    void setColor(const Color& color) { color_ = color; }
+
+    const Color& borderColor() const { return borderColor_; }
+    void setborderColor(const Color& color) { borderColor_ = color; }
+
+private:
+    Label text_;
+    Color color_;
+    Color borderColor_;
 };
 
 class TWODCPP_EXPORT Select : public Widget
 {
 public:
     Select(Widget* parent = nullptr);
-
-    virtual void update(Game& game) override;
-    virtual void render(Game& game) override;
-
     void add_option(const std::string& opt);
 
 private:
@@ -184,14 +229,11 @@ public:
     void setValue(float value) { value_ = std::min(value, 1.0f); }
 
 private:
-    void calculate() override;
-
-private:
     HLayout layout_;
     Button left_;
     Button right_;
-    Rectangle outline_;
-    Rectangle rect_;
+    /*Rectangle outline_;
+    Rectangle rect_;*/
     float step_ = 0;
     float value_ = 0;
 };

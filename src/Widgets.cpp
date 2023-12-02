@@ -4,6 +4,7 @@
 #include "input.h"
 #include "game.h"
 #include "Provider.h"
+#include "Resources.h"
 
 #include <cassert>
 #include <glm/ext/vector_float2.hpp>
@@ -11,10 +12,7 @@
 Widget::Widget(Widget* parent)
     : parent_ { parent }
 {
-    if (parent_)
-    {
-        parent_->childs_.push_back(this);
-    }
+    setParent(parent);
 }
 
 Widget::~Widget()
@@ -52,16 +50,16 @@ void Widget::update(Game& game)
         inFocus_ = true;
         if (!onEnter_)
         {
-            invoke(WidgetSignal::Enter);
+            invoke(Enter);
             onEnter_ = true;
         }
         if (leftPresed)
         {
-            invoke(WidgetSignal::LeftClick);
+            invoke(LeftClick);
         }
         if (rightPresed)
         {
-            invoke(WidgetSignal::RightClick);
+            invoke(RightClick);
         }
     }
     else
@@ -69,7 +67,7 @@ void Widget::update(Game& game)
         inFocus_ = false;
         if (onEnter_)
         {
-            invoke(WidgetSignal::Leave);
+            invoke(Leave);
             onEnter_ = false;
         }
     }
@@ -88,54 +86,55 @@ void Widget::render(Game& game)
     }
 }
 
-HLayout::HLayout(Widget* parent)
-    : Widget(parent)
-{
-}
-
-void HLayout::add(Widget* w)
+void Layout::add(Widget* w)
 {
     w->setParent(this);
+    w->on(Resize, this, &Layout::recalc);
+    recalc();
 }
 
-void HLayout::update(Game& game)
+HLayout::HLayout(Widget* parent)
+    : Layout(parent)
 {
-    Widget::update(game);
+}
 
-    int maxH = 0;
-    int x = spacing().w;
-    for (Widget* w : childs_)
+void HLayout::recalc()
+{
+    int newW = 0;
+    int newH = 0;
+    for (Widget* w : childs())
     {
-        maxH = std::max(maxH, w->size().h);
-        w->setPos(Point(x, w->pos().y));
-        x += w->size().w + spacing().w;
+        newH = std::max(newH, w->size().h);
+        w->move(Point(newW, w->pos().y));
+        newW += w->size().w + margin();
     }
-    setSize(Size(x, maxH));
+    if (childs().size())
+    {
+        newW -= margin();
+    }
+    size_ = Size(newW, newH);
 }
 
 VLayout::VLayout(Widget* parent)
-    : Widget(parent)
+    : Layout(parent)
 {
 }
 
-void VLayout::add(Widget* w)
+void VLayout::recalc()
 {
-    w->setParent(this);
-}
-
-void VLayout::update(Game& game)
-{
-    Widget::update(game);
-
-    int maxW = 0;
-    int y = spacing().h;
-    for (Widget* w : childs_)
+    int newW = 0;
+    int newH = 0;
+    for (Widget* w : childs())
     {
-        maxW = std::max(maxW, w->size().w);
-        w->setPos(Point(w->pos().x, y));
-        y += w->size().h + spacing().h;
+        newW = std::max(newW, w->size().w);
+        w->move(Point(w->pos().x, newH));
+        newH += w->size().h + margin();
     }
-    setSize(Size(maxW, y));
+    if (childs().size())
+    {
+        newH -= margin();
+    }
+    size_ = Size(newW, newH);
 }
 
 Label::Label(const std::string& text, Widget* parent)
@@ -144,12 +143,7 @@ Label::Label(const std::string& text, Widget* parent)
 {
     font_ = Provider::get().get<Resources>().get<Font>("EightBits.ttf", 35);
     Font::Size s = font_->get_str_size(text_.c_str());
-    setSize(Size(s.w, s.h));
-}
-
-void Label::update(Game& game)
-{
-    Widget::update(game);
+    resize(Size(s.w, s.h));
 }
 
 void Label::render(Game& game)
@@ -177,25 +171,25 @@ void Label::set_text(const std::string& text)
 {
     text_ = text;
     Font::Size s = font_->get_str_size(text.c_str());
-    setSize(Size(s.w, s.h));
+    resize(Size(s.w, s.h));
 }
 
 Button::Button(const std::string& text, Widget* parent)
-    : Label(text, parent)
+    : Widget(parent)
+    , text_(text, this)
+    , color_()
+    , borderColor_(color_white)
 {
-}
-
-void Button::update(Game &game)
-{
-    Label::update(game);
+    text_.move(Point(3, 3));
+    resize(Size(text_.size().w + 6, text_.size().h + 6));
 }
 
 void Button::render(Game &game)
 {
-    Color save = color_;
-    color_ = inFocus() ? color_green : color_;
-    Label::render(game);
-    color_ = save;
+    Rect border(worldPos().x, worldPos().y, size().w, size().h);
+    game.get_graphics().draw_outline_rect(border, borderColor_);
+
+    Widget::render(game);
 }
 
 Select::Select(Widget* parent)
@@ -203,44 +197,36 @@ Select::Select(Widget* parent)
     , hlayout(this)
     , option("default")
 {
-    auto left = new Button("<", &hlayout);
-    option.setParent(&hlayout);
-    auto right = new Button(">", &hlayout);
+    hlayout.setMargin(10);
+    hlayout.on(Resize, [this](const Widget* w)
+        { resize(w->size()); });
+
+    auto left = new Button("<");
+    auto right = new Button(">");
+    hlayout.add(left);
+    hlayout.add(&option);
+    hlayout.add(right);
 
     left->on(WidgetSignal::LeftClick, [this]()
         {
             if (options.empty())
                 return;
             current_option = std::max(current_option - 1, 0);
+            option.set_text(options[current_option]);
         });
     right->on(WidgetSignal::LeftClick, [this]()
         {
             if (options.empty())
                 return;
             current_option = std::min(current_option + 1, (int)options.size() - 1);
+            option.set_text(options[current_option]);
         });
-}
-
-void Select::update(Game& game)
-{
-    if (!enabled())
-    {
-        return;
-    }
-
-    Widget::update(game);
-    option.set_text(options[current_option]);
-    setSize(hlayout.size());
-}
-
-void Select::render(Game& game)
-{
-    Widget::render(game);
 }
 
 void Select::add_option(const std::string& opt)
 {
     options.emplace_back(opt);
+    option.set_text(options[current_option]);
 }
 
 Slider::Slider(float step, float value, Widget* parent)
@@ -252,17 +238,15 @@ Slider::Slider(float step, float value, Widget* parent)
     , value_(value)
 {
     left_.setParent(&layout_);
-    outline_.setParent(&layout_);
-    rect_.setPos(Point(1, 1));
-    rect_.setParent(&outline_);
+    //outline_.setParent(&layout_);
+    //rect_.setPos(Point(1, 1));
+    //rect_.setParent(&outline_);
     right_.setParent(&layout_);
 
     left_.on(WidgetSignal::LeftClick, this, [this]()
         { value_ = std::max(value_ - this->step_, 0.0f); });
     right_.on(WidgetSignal::LeftClick, [this]()
         { value_ = std::min(value_ + this->step_, 1.0f); });
-
-    calculate();
 }
 
 void Slider::render(Game& game)
@@ -275,34 +259,34 @@ void Slider::render(Game& game)
     Widget::render(game);
 }
 
-void Slider::calculate()
-{
-    int buttonsW = left_.size().w + right_.size().w;
-    int buttonsH = std::max(left_.size().h, right_.size().h);
-    if (size().w == 0)
-    {
-        size_ = Size(buttonsW, size().h);
-    }
-    if (size().h == 0)
-    {
-        size_ = Size(size().w, buttonsH);
-    }
-    int w = std::max(size().w - buttonsW - 1, 3);
-    int h = std::max(size().h, buttonsH);
-    outline_.setSize(Size(w, h));
-    rect_.setSize(Size(outline_.size().w - 2, outline_.size().h - 2));
-}
+//void Slider::calculate()
+//{
+//    int buttonsW = left_.size().w + right_.size().w;
+//    int buttonsH = std::max(left_.size().h, right_.size().h);
+//    if (size().w == 0)
+//    {
+//        size_ = Size(buttonsW, size().h);
+//    }
+//    if (size().h == 0)
+//    {
+//        size_ = Size(size().w, buttonsH);
+//    }
+//    int w = std::max(size().w - buttonsW - 1, 3);
+//    int h = std::max(size().h, buttonsH);
+//    //outline_.setSize(Size(w, h));
+//    //rect_.setSize(Size(outline_.size().w - 2, outline_.size().h - 2));
+//}
 
-void Rectangle::render(Game& game)
-{
-    auto wPos = worldPos();
-    Rect rect(wPos.x, wPos.y, size().w, size().h);
-    if (fill_)
-    {
-        game.get_graphics().draw_rect(rect, color_);
-    }
-    else
-    {
-        game.get_graphics().draw_outline_rect(rect, color_);
-    }
-}
+//void Rectangle::render(Game& game)
+//{
+//    auto wPos = worldPos();
+//    Rect rect(wPos.x, wPos.y, size().w, size().h);
+//    if (fill_)
+//    {
+//        game.get_graphics().draw_rect(rect, color_);
+//    }
+//    else
+//    {
+//        game.get_graphics().draw_outline_rect(rect, color_);
+//    }
+//}
