@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "Provider.h"
 #include "log.h"
+#include "Gui.h"
 
 #include <cassert>
 #include <glm/common.hpp>
@@ -18,9 +19,12 @@ Game::Game()
     , name_("default")
     , tick_time_(1 / 60.0f)
 {
+    input_ = std::make_unique<Input>();
     graphics_ = std::make_unique<Graphics>(width_, heigth_, name_);
-	audio_ = std::make_unique<Audio>();
-	physics_ = std::make_unique<Physics>(1.0f);
+    audio_ = std::make_unique<Audio>();
+    physics_ = std::make_unique<Physics>(1.0f);
+    resources_ = std::make_unique<Resources>(*this);
+    gui_ = std::make_unique<Gui>();
 }
 
 Game::Game(const Config &config)
@@ -34,12 +38,14 @@ Game::Game(const Config &config)
 	audio_ = std::make_unique<Audio>();
 	physics_ = std::make_unique<Physics>(1.0f);
     resources_ = std::make_unique<Resources>(*this);
+    gui_ = std::make_unique<Gui>();
 
     Provider::get().provide<Game>(this);
     Provider::get().provide<Graphics>(graphics_.get());
     Provider::get().provide<Audio>(audio_.get());
     Provider::get().provide<Physics>(physics_.get());
     Provider::get().provide<Resources>(resources_.get());
+    Provider::get().provide<Gui>(gui_.get());
 }
 
 Game::~Game()
@@ -77,6 +83,8 @@ void Game::run()
 
         NodePtr current_scene = scenes_.top();
         current_scene->update_internal(*this);
+        
+        gui_->update(*this);
 
         while (lag_ >= tick_time_) {
             physics_->step(tick_time_);
@@ -86,6 +94,7 @@ void Game::run()
         }
 
 		current_scene->render_internal(*this);
+        gui_->render(*this);
 
         graphics_->render_frame();
 
@@ -131,6 +140,11 @@ Physics &Game::get_physics() {
 Resources& Game::resources()
 {
     return *resources_;
+}
+
+Gui& Game::gui()
+{
+    return *gui_;
 }
 
 float Game::get_elapsed() const {

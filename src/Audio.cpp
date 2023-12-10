@@ -6,78 +6,80 @@
 //
 
 #include "Audio.hpp"
+#include "log.h"
+#include <memory>
+#include <string>
+#include <unordered_map>
 
-#include <SDL.h>
+#include "miniaudio.h"
+
 #include <cassert>
 
-Audio::Audio() {
-	if(SDL_Init(SDL_INIT_AUDIO) < 0) {
-		return;
+struct Audio::Impl
+{
+    Impl()
+    {
+        ma_result result = ma_engine_init(NULL, &engine);
+        if (result != MA_SUCCESS)
+        {
+			LOG_ERROR("Audio init failed!");
+            return;
+        }
+    }
+	~Impl()
+	{
+		for (auto& p : sounds)
+		{
+			ma_sound_uninit(p.second.get());
+		}
+		ma_engine_uninit(&engine);
 	}
-	// if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-	// 	return;
-	// }
-	isInitialize_ = true;
+
+    void play(const std::string& s)
+    {
+		auto sound = sounds.find(s);
+		if (sound == sounds.end())
+		{
+			sound = sounds.insert(std::make_pair(s, std::make_unique<ma_sound>())).first;
+		}
+
+        ma_result result = ma_sound_init_from_file(&engine, s.c_str(), 0, NULL, NULL, sound->second.get());
+        if (result != MA_SUCCESS)
+        {
+            LOG_ERROR("Audio load failed!");
+            return;
+        }
+
+        ma_sound_seek_to_pcm_frame(sound->second.get(), 0);
+        ma_sound_start(sound->second.get());
+    }
+
+    ma_engine engine;
+	std::unordered_map<std::string, std::unique_ptr<ma_sound>> sounds;
+};
+
+Audio::Audio() {
+	impl_ = std::make_unique<Audio::Impl>();
 }
 
 Audio::~Audio() {
 
 }
 
-bool Audio::load_music(const std::string &name, const std::string &filename) {
-	/*Mix_Music_ptr mus(Mix_LoadMUS(filename.c_str()), Mix_FreeMusic);
-	if (!mus) {
-		return false;
-	}
-	musics_.emplace(name, std::move(mus));*/
-	return true;
-}
-
-
-bool Audio::load_chunk(const std::string &name, const std::string &filename) { 
-	/*Mix_Chunk_ptr chunk(Mix_LoadWAV(filename.c_str()), Mix_FreeChunk);
-	if (!chunk) {
-		return false;
-	}
-	chunks_.emplace(name, std::move(chunk));*/
-	return true;
-}
-
-void Audio::play_chunk(const std::string &name) {
-	/*auto chunk = chunks_.find(name);
-	assert(chunk != chunks_.end());
-	Mix_PlayChannel(-1, chunk->second.get(), 0);*/
-}
-
 void Audio::play_music(const std::string &name) {
-	/*auto music = musics_.find(name);
-	assert(music != musics_.end());
-	if (Mix_PlayingMusic()) {
-		Mix_HaltMusic();
-	}
-	Mix_PlayMusic(music->second.get(), -1);*/
+	//impl_->play(name);
 }
 
 void Audio::stop_music() { 
-	/*Mix_HaltMusic();*/
+
 }
 
 void Audio::resume_music() {
-	/*if (!Mix_PlayingMusic()) {
-		return;
-	}
-	if (Mix_PausedMusic()) {
-		Mix_ResumeMusic();
-	}*/
+
 }
 
 void Audio::pause_music() {
-	/*if (!Mix_PlayingMusic()) {
-		return;
-	}
-	if (!Mix_PausedMusic()) {
-		Mix_PauseMusic();
-	}*/
+
 }
 
 

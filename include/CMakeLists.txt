@@ -18,7 +18,7 @@ set(HEADER_FILES
     Signal.h
     Resources.h
     Provider.h
-    Provider.cpp
+    Gui.h
 )
 
 target_sources(${PROJECT_NAME} PUBLIC ${HEADER_FILES})

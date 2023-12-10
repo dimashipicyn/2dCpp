@@ -36,8 +36,7 @@ enum class WidgetSignal
     Enter,
     Leave,
     Move,
-    Resize,
-    WidgetSignalCount
+    Resize
 };
 
 enum class Align
@@ -51,7 +50,7 @@ enum class Align
     VCenter
 };
 
-class TWODCPP_EXPORT Widget : public Signal<Widget, WidgetSignal, WidgetSignal::WidgetSignalCount>
+class TWODCPP_EXPORT Widget : public Signal<Widget, WidgetSignal>
 {
 public:
     using enum WidgetSignal;
@@ -208,6 +207,13 @@ class TWODCPP_EXPORT Select : public Widget
 public:
     Select(Widget* parent = nullptr);
     void add_option(const std::string& opt);
+    
+    int currentIndex() const { return current_option; }
+    std::string currentOption() const
+    {
+        assert(current_option > -1 && current_option < options.size());
+        return options[current_option];
+    }
 
 private:
     HLayout hlayout;
@@ -220,20 +226,16 @@ class TWODCPP_EXPORT Slider : public Widget
 {
 public:
     Slider(float step = 0.1f, float value = 0.0f, Widget* parent = nullptr);
-
-    virtual void render(Game& game) override;
-
+    void render(Game& game) override;
     float step() const { return step_; }
     void setStep(float step) { step_ = std::min(step, 1.0f); }
     float value() const { return value_; }
     void setValue(float value) { value_ = std::min(value, 1.0f); }
 
 private:
-    HLayout layout_;
     Button left_;
     Button right_;
-    /*Rectangle outline_;
-    Rectangle rect_;*/
+    Rect outline_;
     float step_ = 0;
     float value_ = 0;
 };

@@ -23,6 +23,7 @@ using NodePtr = Ptr<NodeBase>;
 class TWODCPP_EXPORT NodeBase
 {
 public:
+    NodeBase() = default;
 	virtual ~NodeBase();
 	virtual void init(Game& game);
 	virtual void update(Game& game);

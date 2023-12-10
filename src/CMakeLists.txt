@@ -14,6 +14,8 @@ set(SOURCE_FILES
     Sprite.cpp
     SpriteNode.cpp
     texture.cpp
+    Provider.cpp
+    Gui.cpp
     Widgets.cpp
 )
 

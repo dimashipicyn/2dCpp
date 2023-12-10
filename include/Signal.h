@@ -4,6 +4,7 @@
 #include <list>
 #include <functional>
 #include <cassert>
+#include <unordered_map>
 
 class SignalBase
 {
@@ -25,7 +26,7 @@ protected:
     std::list<SignalBase*> connected_;
 };
 
-template <class T, class SignalEnum, SignalEnum signalEnumSize>
+template <class T, class SignalEnum>
 class Signal : public SignalBase
 {
 public:
@@ -59,40 +60,35 @@ public:
     template<class Owner>
     void on(SignalEnum signal, SignalBase* owner, CallbackMfWithoutArg<Owner> callback)
     {
-        assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
-        functions_[(int)signal].push_front(Ctx { owner, [owner, callback]()
+        functions_[signal].push_front(Ctx { owner, [owner, callback]()
             { std::invoke(callback, static_cast<Owner*>(owner)); } });
     }
 
     void on(SignalEnum signal, Callback callback)
     {
-        assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
-        functions_[(int)signal].push_front(Ctx { nullptr, [cb = std::move(callback), this]
+        functions_[signal].push_front(Ctx { nullptr, [cb = std::move(callback), this]
             { std::invoke(cb, static_cast<T*>(this)); } });
     }
 
     void on(SignalEnum signal, SignalBase* owner, Callback callback)
     {
-        assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
-        functions_[(int)signal].push_front(Ctx { owner, [cb = std::move(callback), this]
+        functions_[signal].push_front(Ctx { owner, [cb = std::move(callback), this]
             { std::invoke(cb, static_cast<T*>(this)); } });
     }
 
     void on(SignalEnum signal, CallbackWithoutArg callback)
     {
-        assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
-        functions_[(int)signal].push_front(Ctx { nullptr, std::move(callback) });
+        functions_[signal].push_front(Ctx { nullptr, std::move(callback) });
     }
 
     void on(SignalEnum signal, SignalBase* owner, CallbackWithoutArg callback)
     {
-        assert((int)signal < functions_.size() && (int)signal >= 0 && "Wrong signal!");
-        functions_[(int)signal].push_front(Ctx { owner, std::move(callback) });
+        functions_[signal].push_front(Ctx { owner, std::move(callback) });
     }
 
     void remove(SignalEnum signal, SignalBase* owner)
     {
-        auto& list = functions_[(int)signal];
+        auto& list = functions_[signal];
         list.erase(std::remove_if(list.begin(), list.end(), [owner](const Ctx& ctx)
                        { return ctx.owner == owner; }),
             list.end());
@@ -108,7 +104,7 @@ public:
 
     void invoke(SignalEnum signal)
     {
-        for (Ctx& ctx : functions_[(int)signal])
+        for (Ctx& ctx : functions_[signal])
         {
             ctx.callback();
         }
@@ -116,5 +112,7 @@ public:
 
 private:
     using CtxList = std::list<Ctx>;
-    std::array<CtxList, (int)signalEnumSize> functions_;
+    std::unordered_map<SignalEnum, CtxList> functions_;
 };
+
+static_assert(sizeof(Signal<int, int>) == 112);

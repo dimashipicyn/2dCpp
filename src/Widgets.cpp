@@ -231,18 +231,21 @@ void Select::add_option(const std::string& opt)
 
 Slider::Slider(float step, float value, Widget* parent)
     : Widget(parent)
-    , layout_(this)
-    , left_("<")
-    , right_(">")
+    , left_("<", this)
+    , right_(">", this)
     , step_(step)
     , value_(value)
 {
-    left_.setParent(&layout_);
-    //outline_.setParent(&layout_);
-    //rect_.setPos(Point(1, 1));
-    //rect_.setParent(&outline_);
-    right_.setParent(&layout_);
+    on(Resize, [this]
+        {
+            int x = left_.size().w + 10;
+            int w = size().w - left_.size().w - right_.size().w - 10;
+            outline_ = Rect(x, pos().y, w, size().h);
+            right_.move(Point(outline_.x + outline_.w + 10, 0));
+        });
 
+    resize(Size(left_.size().w + 10 + right_.size().w + 10, left_.size().h));
+    
     left_.on(WidgetSignal::LeftClick, this, [this]()
         { value_ = std::max(value_ - this->step_, 0.0f); });
     right_.on(WidgetSignal::LeftClick, [this]()
@@ -251,42 +254,16 @@ Slider::Slider(float step, float value, Widget* parent)
 
 void Slider::render(Game& game)
 {
-    if (!enabled())
+    Rect outline(worldPos().x + outline_.x, worldPos().y + outline_.y, outline_.w, outline_.h);
+    game.get_graphics().draw_outline_rect(outline, color_white);
+
+    int w = (outline.w - 2) * value();
+    if (w > 0)
     {
-        return;
+        Rect slider(outline.x + 1, outline.y + 1, w, outline.h - 2);
+        game.get_graphics().draw_rect(slider, color_green);
     }
 
     Widget::render(game);
 }
 
-//void Slider::calculate()
-//{
-//    int buttonsW = left_.size().w + right_.size().w;
-//    int buttonsH = std::max(left_.size().h, right_.size().h);
-//    if (size().w == 0)
-//    {
-//        size_ = Size(buttonsW, size().h);
-//    }
-//    if (size().h == 0)
-//    {
-//        size_ = Size(size().w, buttonsH);
-//    }
-//    int w = std::max(size().w - buttonsW - 1, 3);
-//    int h = std::max(size().h, buttonsH);
-//    //outline_.setSize(Size(w, h));
-//    //rect_.setSize(Size(outline_.size().w - 2, outline_.size().h - 2));
-//}
-
-//void Rectangle::render(Game& game)
-//{
-//    auto wPos = worldPos();
-//    Rect rect(wPos.x, wPos.y, size().w, size().h);
-//    if (fill_)
-//    {
-//        game.get_graphics().draw_rect(rect, color_);
-//    }
-//    else
-//    {
-//        game.get_graphics().draw_outline_rect(rect, color_);
-//    }
-//}

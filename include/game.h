@@ -15,6 +15,7 @@ class Audio;
 class Physics;
 class Resources;
 class NodeBase;
+class Gui;
 
 struct TWODCPP_EXPORT Config
 {
@@ -35,6 +36,7 @@ public:
     Audio& get_audio();
     Physics& get_physics();
     Resources& resources();
+    Gui& gui();
 
 	float get_tick() const;
 	float get_elapsed() const;
@@ -64,6 +66,7 @@ private:
 	std::unique_ptr<Audio> audio_;
 	std::unique_ptr<Physics> physics_;
     std::unique_ptr<Resources> resources_;
+    std::unique_ptr<Gui> gui_;
     std::stack<Ptr<NodeBase>> scenes_;
 
     bool quit_ = false;
