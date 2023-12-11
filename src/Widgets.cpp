@@ -79,6 +79,13 @@ void Widget::render(Game& game)
     {
         return;
     }
+    
+    Rect rect(worldPos().x, worldPos().y, size_.w, size_.h);
+    game.get_graphics().draw_rect(rect, background_);
+    if (!parent_)
+    {
+        game.get_graphics().draw_outline_rect(rect, Color());
+    }
 
     for (Widget* c : childs_)
     {
@@ -187,6 +194,7 @@ Button::Button(const std::string& text, Widget* parent)
 void Button::render(Game &game)
 {
     Rect border(worldPos().x, worldPos().y, size().w, size().h);
+    game.get_graphics().draw_rect(border, Color(0, 0, 0, 125));
     game.get_graphics().draw_outline_rect(border, borderColor_);
 
     Widget::render(game);

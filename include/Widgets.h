@@ -101,6 +101,9 @@ public:
     bool enabled() const { return enabled_; }
     void setEnabled(bool enabled) { enabled_ = enabled; }
 
+    const Color& background() const { return background_; }
+    void setBackground(const Color& color) { background_ = color; }
+
 protected:
     void addChild(Widget* child)
     {
@@ -120,6 +123,7 @@ private:
     Widget* parent_;
     std::list<Widget*> childs_;
     Point pos_;
+    Color background_ = Color(0, 0, 0, 125);
     bool onEnter_ = false;
     bool inFocus_ = false;
     bool enabled_ = true;

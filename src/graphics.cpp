@@ -30,6 +30,8 @@ Graphics::Graphics(int32_t width, int32_t height, const std::string &title)
 		ok_ = false;
         LOG_ERROR(std::string{"SDL could not initialize! Error: "} + SDL_GetError());
 	}
+	
+	SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
 
 	SDL_GetWindowSize(window_, &w_, &h_);
 	SDL_SetRenderDrawColor(renderer_, 0x0, 0x0, 0x0, 0x0);

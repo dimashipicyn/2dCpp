@@ -97,11 +97,11 @@ struct TWODCPP_EXPORT Color
 	uint8_t a;
 };
 
-#define color_white Color(255,255,255,0)
-#define color_red Color(255,0,0,0)
-#define color_green Color(0,255,0,0)
-#define color_blue Color(0,0,255,0)
-#define rand_color Color(rand()%256,rand()%256,rand()%256,rand()%256)
+#define color_white Color(255,255,255)
+#define color_red Color(255,0,0)
+#define color_green Color(0,255,0)
+#define color_blue Color(0,0,255)
+#define rand_color Color(rand()%256,rand()%256,rand()%256)
 
 class TWODCPP_EXPORT Graphics
 {
